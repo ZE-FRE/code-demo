@@ -1,0 +1,113 @@
+package cn.zefre.jdk8;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ *  Stream api测试
+ * @author pujian
+ * @date 2020/10/21 21:21
+ *
+ * Stream中间操作(intermediate operation)方法有：
+ * filter、map、flatMap、distinct、sorted、peek、limit、skip
+ *
+ * 终端操作(terminal operation)方法有：
+ * forEach、forEachOrdered、toArray、reduce、collect、min、max、count
+ * anyMatch、allMatch、noneMatch、findFirst、findAny
+ *
+ * short-circuiting方法有:
+ * anyMatch、allMatch、noneMatch、findFirst、findAny
+ */
+public class StreamTest {
+
+    @Test
+    public void testFilter() {
+        List<String> names = new ArrayList<>(Arrays.asList("zhangsan", "lisi","", "wangwu", "", "qianliu"));
+        // 打印空字符串的个数
+        System.out.println(names.stream().filter(String::isEmpty).count());
+
+        // 名字长度大于5的
+        List<String> collect = names.stream().filter(name -> name.length() > 5).collect(Collectors.toList());
+        System.out.println(collect);
+
+        // 拼接
+        String collect1 = names.stream().filter(name -> name.length() > 5).collect(Collectors.joining("===="));
+        System.out.println(collect1);
+
+        System.out.println(names.parallelStream().filter("zhangsan"::equals).count());
+    }
+
+    @Test
+    public void testSorted() {
+        List<Integer> nums = new ArrayList<>(Arrays.asList(3, 2, 8, 10, 15, 19));
+        System.out.println(nums.stream().sorted().collect(Collectors.toList()));
+    }
+
+
+    @Test
+    public void testPeek() {
+        Stream.of("one", "two", "three", "four")
+                .filter(e -> {
+                    System.out.println("filter: " + e);
+                    return e.length() > 3;})
+                .peek(e -> System.out.println("peek1 value: " + e))
+                .map(String::toUpperCase)
+                .peek(e -> System.out.println("peek2 value: " + e))
+                .forEach(e -> System.out.println("forEach: " + e));
+
+        /**
+         * 执行结果：
+         * filter: one
+         * filter: two
+         * filter: three
+         * peek1 value: three
+         * peek2 value: THREE
+         * forEach: THREE
+         * filter: four
+         * peek1 value: four
+         * peek2 value: FOUR
+         * forEach: FOUR
+         * 可以看到，对于filter方法，stream是单独进行一次遍历
+         * 对于peek、map、forEach等方法，stream只遍历一次，依次调用它们
+         */
+
+        /**
+         * peek方法与forEach方法唯一的区别就是peek方法是中间操作(intermediate operation)，而forEach是terminal operation
+         */
+    }
+
+    /**
+     * reduce方法用于统计操作
+     */
+    @Test
+    public void testReduce() {
+        String result = Stream.of("one", "two", "three", "four")
+                .reduce((s1, s2) -> {
+                    System.out.println("s1 = " + s1);
+                    System.out.println("s2 = " + s2);
+                    return s1 + s2;
+                }).get();
+        System.out.println(result);
+
+        System.out.println("===========================");
+
+
+        int r = new ArrayList<>(Arrays.asList("one", "two", "three", "four", "five", "six"))
+                .parallelStream()
+                .reduce(0, (num, str) -> {
+                    num++;
+                    System.out.println(Thread.currentThread().getName() + "-" + "accumulator-" + num + "-" + str);
+                    return num;
+                }, (num1, num2) -> {
+                    System.out.println(Thread.currentThread().getName() + "-" + "combiner-" + num1 + "-" + num2);
+                    return num1+num2;
+                });
+        System.out.println("r = " + r);
+    }
+
+}
