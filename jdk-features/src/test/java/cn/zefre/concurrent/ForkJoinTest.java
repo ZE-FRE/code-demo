@@ -1,4 +1,4 @@
-package cn.zefre;
+package cn.zefre.concurrent;
 
 import cn.zefre.concurrent.task.FileSizeTask;
 import cn.zefre.concurrent.task.SumTask;

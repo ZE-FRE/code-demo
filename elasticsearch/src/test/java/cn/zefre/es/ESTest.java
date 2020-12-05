@@ -13,8 +13,7 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -29,9 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -282,5 +279,45 @@ public class ESTest {
 
         boolean executionStatus = processor.awaitClose(3000L, TimeUnit.MILLISECONDS);
         System.out.println("是否执行完成：" + executionStatus);
+    }
+
+
+    /**
+     * 测试multiGet
+     * @author pujian
+     * @date 2020/12/5 21:17
+     * @return
+     */
+    @Test
+    public void testMultiGet() throws IOException {
+        MultiGetRequest request = new MultiGetRequest();
+        request.add(new MultiGetRequest.Item("movie", "plot", "1"))
+                .add(new MultiGetRequest.Item("movie", "plot", "2"))
+                .add(new MultiGetRequest.Item("movie", "plot", "3"))
+                .add(new MultiGetRequest.Item("movie", "plot", "222"));
+
+        // 执行请求
+        MultiGetResponse response = client.mget(request, RequestOptions.DEFAULT);
+        MultiGetItemResponse[] responses = response.getResponses();
+        // 对每个请求进行迭代
+        Arrays.stream(responses).forEach(itemResponse -> {
+            GetResponse getResponse = itemResponse.getResponse();
+            if(getResponse.isExists()) {
+                System.out.println(getResponse.getSourceAsString());
+            } else {
+                System.out.println("/" + getResponse.getIndex()
+                        + "/" + getResponse.getType()
+                        + "/" + getResponse.getId()
+                        + " is not exists!");
+            }
+
+            /** 如果有异常信息，获取异常信息 */
+            Optional.ofNullable(itemResponse.getFailure())
+                    .map(failure -> failure.getFailure())
+                    .ifPresent(exception -> {
+                        ElasticsearchException ee = (ElasticsearchException)exception;
+                        System.out.println(ee.getMessage());
+                    });
+        });
     }
 }

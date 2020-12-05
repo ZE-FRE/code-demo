@@ -12,6 +12,7 @@
         <module>elasticsearch</module>
         <module>data-structure</module>
         <module>jdk-features</module>
+        <module>leetcode-algorithm</module>
     </modules>
 
     <dependencies>
