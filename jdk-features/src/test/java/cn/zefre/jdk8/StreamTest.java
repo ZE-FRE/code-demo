@@ -1,10 +1,12 @@
 package cn.zefre.jdk8;
 
+import cn.zefre.jdk8.methodpointer.User;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,6 +110,21 @@ public class StreamTest {
                     return num1+num2;
                 });
         System.out.println("r = " + r);
+    }
+
+    @Test
+    public void testToMap() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(1L,"zhangsan", 10));
+        users.add(new User(2L,"lisi", 11));
+        users.add(new User(1L,"zhangsan1", 12));
+        users.add(new User(3L,"wangwu", 13));
+        users.add(new User(1L,"zhangsan2", 14));
+
+        Map<Long, String> userMap = users.stream().collect(Collectors.toMap(User::getId, User::getName, (previous, next) -> previous));
+        for (Map.Entry<Long, String> entry : userMap.entrySet()) {
+            System.out.println("id: " + entry.getKey() + ",name:" + entry.getValue());
+        }
     }
 
 }

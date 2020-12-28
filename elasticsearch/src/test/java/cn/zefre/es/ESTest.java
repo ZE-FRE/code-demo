@@ -16,19 +16,29 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.get.GetResult;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -221,8 +231,8 @@ public class ESTest {
     @Test
     public void testBulkByBulkProcessor() throws ParseException, InterruptedException {
         // 构建实体类
-        Movie movie1 = new Movie(1,"黄海",sdf.parse("2013-07-05"),"2小时18分23秒","河正宇、金允锡又一经典大作");
-        Movie movie2 = new Movie(2,"新世界",sdf.parse("2016-12-04"),"2小时07分17秒","李政宰、黄政民黑帮演绎");
+        Movie movie1 = new Movie(5,"画皮",sdf.parse("2011-06-05"),"1小时57分23秒","节选自聊斋志异，由周迅、赵薇、陈坤、甄子丹、孙俪领衔主演的中国古代奇幻爱情电影");
+        Movie movie2 = new Movie(6,"星际穿越",sdf.parse("2013-11-13"),"2小时49分24秒","经典太空科幻星际大片，着重描述亲情");
         Movie movie3 = new Movie(3,"泰坦尼克号",sdf.parse("1999-12-31"),"2小时49分23秒","经典不朽的爱情灾难电影");
         Movie movie4 = new Movie(4,"叶问",sdf.parse("2011-05-12"),"1小时58分36秒","甄子丹奠定叶问系列基础之作");
 
@@ -253,7 +263,7 @@ public class ESTest {
             public void afterBulk(long executionId, BulkRequest bulkRequest, BulkResponse bulkResponse) {
                 System.out.print("executionId: " + executionId + " ");
                 if(bulkResponse.hasFailures()) {
-                    System.out.println(" execute failure");
+                    System.out.println(" 存在执行失败请求 ");
                 } else {
                     System.out.println("花费时间：" + bulkResponse.getTook().getMillis());
                 }
@@ -319,5 +329,106 @@ public class ESTest {
                         System.out.println(ee.getMessage());
                     });
         });
+    }
+
+
+    /**
+     * term查询
+     * @author pujian
+     * @date 2020/12/7 10:08
+     */
+    @Test
+    public void testTermQuery() throws IOException {
+        SearchRequest request = new SearchRequest();
+        request.indices("movie");
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.termQuery("name", "泰坦尼克号"));
+        request.source(builder);
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        for (SearchHit hit : response.getHits().getHits()) {
+            System.out.println(hit.getSourceAsString());
+        }
+    }
+
+
+    /**
+     * match查询
+     * @author pujian
+     * @date 2020/12/7 10:01
+     */
+    @Test
+    public void testMatchQuery() throws IOException {
+        SearchRequest request = new SearchRequest("movie");
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.matchQuery("introduce", "爱情"));
+        request.source(builder);
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        SearchHit[] hits = response.getHits().getHits();
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+    }
+
+
+    /**
+     * scroll查询
+     * @author pujian
+     * @date 2020/12/7 14:40
+     */
+    @Test
+    public void testFirstScrollQuery() throws IOException {
+        SearchRequest request = new SearchRequest("movie");
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.matchAllQuery());
+        builder.size(2);
+        request.source(builder);
+        request.scroll(TimeValue.timeValueMinutes(1L));
+        // 执行请求
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        String scrollId = response.getScrollId();
+        SearchHit[] hits = response.getHits().getHits();
+        System.out.println("scrollId = " + scrollId);
+        for(SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * scroll查询下一页
+     * @author pujian
+     * @date 2020/12/7 14:45
+     */
+    @Test
+    public void testScrollQuery() throws IOException {
+        SearchScrollRequest request = new SearchScrollRequest("DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAJHQFkNoY3JpMjh6UTgtY19BVkZwLVJPeWcAAAAAAACR1BZDaGNyaTI4elE4LWNfQVZGcC1ST3lnAAAAAAAAkdEWQ2hjcmkyOHpROC1jX0FWRnAtUk95ZwAAAAAAAJHSFkNoY3JpMjh6UTgtY19BVkZwLVJPeWcAAAAAAACR0xZDaGNyaTI4elE4LWNfQVZGcC1ST3ln");
+        request.scroll(TimeValue.timeValueSeconds(30L));
+        SearchResponse response = client.scroll(request, RequestOptions.DEFAULT);
+        String scrollId = response.getScrollId();
+        SearchHit[] hits = response.getHits().getHits();
+        System.out.println("scrollId = " + scrollId);
+        for(SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * 测试bool查询
+     * @author pujian
+     * @date 2020/12/7 15:49
+     */
+    @Test
+    public void testBoolQuery() throws IOException {
+        SearchRequest request = new SearchRequest("movie");
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        boolBuilder.must(QueryBuilders.matchQuery("introduce", "电影"));
+        boolBuilder.must(QueryBuilders.rangeQuery("releaseDate").gte("1999-12-31").lte("2011-06-04"));
+        builder.query(boolBuilder);
+        request.source(builder);
+
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        for(SearchHit hit : response.getHits().getHits()) {
+            System.out.println(hit.getSourceAsString());
+        }
     }
 }

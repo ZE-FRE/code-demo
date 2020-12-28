@@ -52,7 +52,7 @@ public class Operation {
     * @date 2020/10/21 15:24
     * 
     */
-    public static MyFunctionInterface getDefualtMyFunctionInterface() {
+    public static MyFunctionInterface getDefaultMyFunctionInterface() {
         return (a, b) -> 10;
     }
 }

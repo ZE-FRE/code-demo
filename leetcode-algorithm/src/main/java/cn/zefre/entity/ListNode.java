@@ -13,6 +13,8 @@ public class ListNode {
     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
 
     public static ListNode rearConstruct(int[] arr) {
+        if(null == arr)
+            throw new IllegalArgumentException("the arr is null");
         ListNode head = new ListNode();
         ListNode worker = head;
         for (int num : arr) {
@@ -22,7 +24,6 @@ public class ListNode {
         }
         return head.next;
     }
-
 
     public static void printList(ListNode head) {
         ListNode p = head;
@@ -79,12 +80,6 @@ public class ListNode {
         odd.next = evenHead;
         return oddHead;
     }
-
-
-        /*public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-
-
-        }*/
 
     /*
      * 给定一个链表: 1->2->3->4->5, 和 n = 2.
