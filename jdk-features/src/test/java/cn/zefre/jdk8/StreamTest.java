@@ -2,11 +2,11 @@ package cn.zefre.jdk8;
 
 import cn.zefre.jdk8.methodpointer.User;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,8 +74,6 @@ public class StreamTest {
          * peek1 value: four
          * peek2 value: FOUR
          * forEach: FOUR
-         * 可以看到，对于filter方法，stream是单独进行一次遍历
-         * 对于peek、map、forEach等方法，stream只遍历一次，依次调用它们
          */
 
         /**
@@ -83,9 +81,6 @@ public class StreamTest {
          */
     }
 
-    /**
-     * reduce方法用于统计操作
-     */
     @Test
     public void testReduce() {
         String result = Stream.of("one", "two", "three", "four")
@@ -125,6 +120,16 @@ public class StreamTest {
         for (Map.Entry<Long, String> entry : userMap.entrySet()) {
             System.out.println("id: " + entry.getKey() + ",name:" + entry.getValue());
         }
+    }
+
+    @Test
+    public void testSpicing() {
+        final String separator = ",";
+        List<String> strings = Arrays.asList("1", "2", "3");
+        String reduce = strings.stream().reduce("", (prev, next) -> prev + separator + next);
+        String collect = strings.stream().collect(Collectors.joining(separator));
+        System.out.println(reduce);
+        System.out.println(collect);
     }
 
 }

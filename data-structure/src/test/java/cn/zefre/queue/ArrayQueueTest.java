@@ -1,7 +1,7 @@
 package cn.zefre.queue;
 
 
-import cn.zefre.queque.impl.ArrayQueque;
+import cn.zefre.queque.impl.ArrayQueue;
 import org.junit.Test;
 
 /**
@@ -12,13 +12,13 @@ public class ArrayQueueTest {
 
     @Test
     public void testInit(){
-        ArrayQueque<String> aq = new ArrayQueque<>(3);
+        ArrayQueue<String> aq = new ArrayQueue<>(3);
         System.out.println(aq.size());
     }
 
     @Test
     public void testOffer(){
-        ArrayQueque<String> aq = new ArrayQueque<>(3);
+        ArrayQueue<String> aq = new ArrayQueue<>(3);
         aq.offer("1");
         aq.offer("2");
         aq.print();
@@ -27,7 +27,7 @@ public class ArrayQueueTest {
 
     @Test
     public void testPoll(){
-        ArrayQueque<String> aq = new ArrayQueque<>(4);
+        ArrayQueue<String> aq = new ArrayQueue<>(4);
         aq.offer("1");
         aq.offer("2");
         aq.offer("3");
@@ -45,7 +45,7 @@ public class ArrayQueueTest {
 
     @Test
     public void testPeek(){
-        ArrayQueque<String> aq = new ArrayQueque<>(4);
+        ArrayQueue<String> aq = new ArrayQueue<>(4);
         aq.offer("1");
         aq.offer("2");
         aq.offer("3");
@@ -61,7 +61,7 @@ public class ArrayQueueTest {
 
     @Test
     public void testMulti(){
-        ArrayQueque<String> aq = new ArrayQueque<>(8);
+        ArrayQueue<String> aq = new ArrayQueue<>(8);
         aq.offer("1");
         aq.offer("2");
         aq.offer("3");
@@ -90,7 +90,7 @@ public class ArrayQueueTest {
 
     @Test
     public void testResize(){
-        ArrayQueque<String> aq = new ArrayQueque<>(3);
+        ArrayQueue<String> aq = new ArrayQueue<>(3);
         aq.offer("1");
         aq.offer("2");
         aq.poll();

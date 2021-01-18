@@ -7,7 +7,7 @@ import cn.zefre.queque.Queue;
  * @author pujian
  * @date 2020/5/26 17:17
  */
-public class ArrayQueque<E> implements Queue<E> {
+public class ArrayQueue<E> implements Queue<E> {
 
     private static final int DEFAULT_CAPACITY = 10;
 
@@ -17,7 +17,7 @@ public class ArrayQueque<E> implements Queue<E> {
     private Object[] elementData;
 
     /**
-     *队头下标
+     *队首下标
      */
     private int head;
     /**
@@ -25,11 +25,11 @@ public class ArrayQueque<E> implements Queue<E> {
      */
     private int tail;
 
-    public ArrayQueque(){
+    public ArrayQueue(){
         elementData = new Object[DEFAULT_CAPACITY];
     }
 
-    public ArrayQueque(int initCapacity){
+    public ArrayQueue(int initCapacity){
         if (initCapacity < 0){
             throw new RuntimeException("initCapacity is not allowed less than 0");
         }
@@ -104,7 +104,7 @@ public class ArrayQueque<E> implements Queue<E> {
     public void print() {
         int size = size();
         int h = head;
-        System.out.print("this queque elements is ");
+        System.out.print("this queue elements is ");
         for (int i = 0; i < size; i++) {
             System.out.print(elementData[h] + " ");
             h = (h + 1) % elementData.length;
