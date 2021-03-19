@@ -132,4 +132,15 @@ public class StreamTest {
         System.out.println(collect);
     }
 
+    @Test
+    public void testFilterMap() {
+        List<Number> strings = Arrays.asList(1, 2, 3);
+        List<Integer> nums = strings.stream().filter(this::validate).map(Number::intValue).collect(Collectors.toList());
+        System.out.println(nums);
+    }
+
+    private boolean validate(Number number) {
+        return false;
+    }
+
 }
