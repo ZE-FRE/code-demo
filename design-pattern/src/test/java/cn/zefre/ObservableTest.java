@@ -1,5 +1,9 @@
-package cn.zefre.observable;
+package cn.zefre;
 
+import cn.zefre.observable.CurrentConditionObserver;
+import cn.zefre.observable.ForecastObserver;
+import cn.zefre.observable.Observer;
+import cn.zefre.observable.WeatherData;
 import org.junit.Test;
 
 /**
