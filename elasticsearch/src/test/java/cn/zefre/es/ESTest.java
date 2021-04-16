@@ -331,6 +331,26 @@ public class ESTest {
         });
     }
 
+    /**
+     *
+     * @author pujian
+     * @date 2020/12/6 14:40
+     * @return
+     */
+    @Test
+    public void testMathAll() throws IOException {
+        SearchRequest request = new SearchRequest("movie");
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.matchAllQuery());
+        request.source(builder);
+
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        SearchHits hits = response.getHits();
+        SearchHit[] hits1 = hits.getHits();
+        for(SearchHit hit : hits1) {
+            System.out.println(hit.getSourceAsString());
+        }
+    }
 
     /**
      * term查询
