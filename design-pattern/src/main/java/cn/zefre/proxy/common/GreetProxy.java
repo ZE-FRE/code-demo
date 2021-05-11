@@ -12,8 +12,8 @@ public class GreetProxy implements Greet {
 
     private GreetImpl greet;
 
-    public GreetProxy(GreetImpl greet) {
-        this.greet = greet;
+    public GreetProxy() {
+        this.greet = new GreetImpl();
     }
 
     @Override

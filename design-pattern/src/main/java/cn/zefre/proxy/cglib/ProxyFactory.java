@@ -1,7 +1,5 @@
 package cn.zefre.proxy.cglib;
 
-import cn.zefre.proxy.Greet;
-import cn.zefre.proxy.common.GreetImpl;
 import net.sf.cglib.proxy.Enhancer;
 
 /**

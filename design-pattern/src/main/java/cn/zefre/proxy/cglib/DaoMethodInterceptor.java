@@ -10,10 +10,11 @@ import java.lang.reflect.Method;
  */
 public class DaoMethodInterceptor implements MethodInterceptor {
     @Override
-    public Object intercept(Object target, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         System.out.println("starting execute " + method.getName() + " method...");
-        // method.invoke(target, args);
-        methodProxy.invokeSuper(target, args);
+        // proxy是代理对象，这一行可能会造成死循环
+        // method.invoke(proxy, args);
+        methodProxy.invokeSuper(proxy, args);
         System.out.println(method.getName() + " has been executed");
         return null;
     }

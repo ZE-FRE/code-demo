@@ -19,7 +19,7 @@ public class ProxyTest {
 
     @Test
     public void testCommon() {
-        Greet greetProxy = new GreetProxy(new GreetImpl());
+        Greet greetProxy = new GreetProxy();
         greetProxy.sayHello();
         greetProxy.saySo("张三");
     }

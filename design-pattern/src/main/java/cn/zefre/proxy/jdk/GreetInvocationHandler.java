@@ -1,8 +1,6 @@
 package cn.zefre.proxy.jdk;
 
 import cn.zefre.proxy.Greet;
-import cn.zefre.proxy.common.GreetImpl;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
