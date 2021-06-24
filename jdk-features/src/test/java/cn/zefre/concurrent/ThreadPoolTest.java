@@ -81,4 +81,29 @@ public class ThreadPoolTest {
         }
         System.out.println("hello");
     }
+
+
+    /**
+     * 测试在可中断方法之前调用中断方法，可中断方法是否仍然执行并捕获中断异常
+     *
+     * @author pujian
+     * @date 2021/5/26 14:39
+     * @return
+     */
+    @Test
+    public void interruptBeforeInterruptedMethod() {
+        System.out.println("thread interrupted status:" + Thread.interrupted());
+
+        Thread.currentThread().interrupt();
+
+        System.out.println("thread interrupted status:" + Thread.currentThread().isInterrupted());
+
+        try {
+            System.out.println("thread will sleep 100 milli seconds");
+            TimeUnit.MILLISECONDS.sleep(100);
+        } catch (InterruptedException e) {
+            System.out.println("thread still was interrupted");
+        }
+        System.out.println("thread interrupted status:" + Thread.currentThread().isInterrupted());
+    }
 }

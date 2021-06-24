@@ -1,0 +1,5 @@
+interrupt()方法会设置中断标记为true
+
+可中断方法会捕获中断信号，抛出InterruptedException异常，并清除中断标记
+
+其他方法不会理会interrupt()方法发出的中断信号

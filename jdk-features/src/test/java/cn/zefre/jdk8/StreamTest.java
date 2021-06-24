@@ -3,10 +3,9 @@ package cn.zefre.jdk8;
 import cn.zefre.jdk8.methodpointer.User;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -137,6 +136,27 @@ public class StreamTest {
         List<Number> strings = Arrays.asList(1, 2, 3);
         List<Integer> nums = strings.stream().filter(this::validate).map(Number::intValue).collect(Collectors.toList());
         System.out.println(nums);
+    }
+
+
+    @Test
+    public void testGroupingBy() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(1L, "zhangsan", 10));
+        users.add(new User(2L, "lisi", 20));
+        users.add(new User(3L, "zhangsan", 30));
+
+        Collector<User, List<Integer>, List<Integer>> collector = Collector.of(ArrayList::new, (list, user) -> list.add(user.getAge()),
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                });
+        Map<String, List<Integer>> collect = users.stream().collect(Collectors.groupingBy(User::getName, HashMap::new, collector));
+        collect.forEach((key, value) -> System.out.println(key + ":" + value));
+
+        Map<String, List<Integer>> collect1 = users.stream().collect(Collectors.groupingBy(User::getName, Collectors.mapping(User::getAge, Collectors.toList())));
+        collect1.forEach((key, value) -> System.out.println(key + ":" + value));
+
     }
 
     private boolean validate(Number number) {
