@@ -9,16 +9,6 @@ package cn.zefre.tree;
 public interface Tree<N> {
 
     /**
-     * 销毁树
-     *
-     * @author pujian
-     * @date 2021/7/21 16:44
-     */
-    default void destroy() {
-        clear();
-    }
-
-    /**
      * 若树不是空树，则清空树
      *
      * @author pujian
@@ -49,7 +39,7 @@ public interface Tree<N> {
      *
      * @author pujian
      * @date 2021/7/21 15:57
-     * @return
+     * @return 树的根节点
      */
     N root();
 
@@ -104,32 +94,43 @@ public interface Tree<N> {
     N rightSibling(N node);
 
     /**
-     * 给节点node新增一颗子树
+     * 在节点node插入一颗子树作为它的第i棵子树
      *
      * @param node 节点
-     * @param degree node节点的度
+     * @param i 1 <= i <= degree + 1
      * @param insertedTree 一颗不与当前树相交的子树
      * @author pujian
      * @date 2021/7/21 16:06
      */
-    void insertChild(N node, int degree, Tree<N> insertedTree);
+    void insertChild(N node, int i, Tree<N> insertedTree);
 
     /**
      * 删除节点node的第i棵子树
      *
      * @param node
-     * @param i
+     * @param i 1 <= i<= degree
      * @author pujian
      * @date 2021/7/21 16:14
+     * @return 返回被删除的子树
      */
-    void deleteChild(Tree<N> node, int i);
+    Tree<N> deleteChild(N node, int i);
 
     /**
-     * 获取节点数
+     * 获取树节点数
      *
      * @author pujian
      * @date 2021/7/23 15:00
      * @return 节点数
      */
     int nodeCount();
+
+    /**
+     * 获取节点的度
+     *
+     * @param node
+     * @author pujian
+     * @date 2021/7/26 14:48
+     * @return 节点的度
+     */
+    int degree(N node);
 }

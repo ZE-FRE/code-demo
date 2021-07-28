@@ -18,5 +18,9 @@ public enum OrderEnum {
     /**
      * 后序
      */
-    POST_ORDER
+    POST_ORDER,
+    /**
+     * 层序
+     */
+    SEQUENCE
 }
