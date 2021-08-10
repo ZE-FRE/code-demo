@@ -138,4 +138,56 @@ public class CommonTest {
         }
         return num;
     }
+
+    /**
+     * leetcode#1011 在 D 天内送达包裹的能力
+     *
+     * @author pujian
+     * @date 2021/4/26 19:24
+     * @return
+     */
+    @Test
+    public void testShipWithinDays() {
+        int[] weights = {1,2,3,4,5,6,7,8,9,10};
+        int days = 5;
+
+        int sum = 0;
+        for (int weight : weights) {
+            sum += weight;
+        }
+        int avg = sum / days;
+
+        int minCapacity = 0;
+        int[] results = new int[days];
+        int left = avg, right = sum;
+        while(minCapacity == 0) {
+            int mid = (left + right) >> 1;
+            int rIndex = 0;
+            int logIndex = 0;
+            int s = 0;
+            for (int wIndex = logIndex; wIndex < weights.length;) {
+                if(s < mid && s + weights[wIndex] <= mid) {
+                    s += weights[wIndex];
+                } else {
+                    logIndex = wIndex;
+                    rIndex++;
+                    break;
+                }
+                wIndex++;
+                if(rIndex > results.length - 1 && wIndex < weights.length - 1) {
+                    // mid在结果的右边
+                    left = mid;
+                    break;
+                } else if(rIndex == results.length - 1 && wIndex == weights.length - 1) {
+                    // 可能的值
+                    minCapacity = mid;
+                    right = mid;
+                } else if(rIndex < results.length - 1 && wIndex > weights.length - 1) {
+                    right = mid;
+                    break;
+                }
+            }
+        }
+        System.out.println(minCapacity);
+    }
 }

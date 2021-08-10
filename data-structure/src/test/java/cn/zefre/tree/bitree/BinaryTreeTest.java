@@ -23,8 +23,6 @@ public class BinaryTreeTest {
      *     null   d          e    null
      *          f  null   null g
      *
-     * @author pujian
-     * @date 2021/7/21 10:52
      */
     static {
         BinaryTreeTest.binaryTree = new BinaryTree<>();
