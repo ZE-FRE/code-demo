@@ -48,8 +48,8 @@ public class LinkedQueue<E> implements Queue<E> {
         checkEmpty();
         Node<E> temp = head;
         E value = temp.data;
-        head = head.next;
-        temp = null;
+        head = temp.next;
+        temp.next = null;
         return value;
     }
 

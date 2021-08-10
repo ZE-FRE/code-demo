@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
 
     static class Node<E> {
-        private E data;
-        Node<E> left;
-        Node<E> right;
+        protected E data;
+        protected Node<E> left;
+        protected Node<E> right;
 
         Node(E data) {
             this.data = data;
@@ -30,9 +30,9 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     /**
-     * 根节点
+     * 根结点
      */
-    private Node<E> root;
+    protected Node<E> root;
 
     public BinaryTree() { }
 
@@ -131,12 +131,12 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
             throw new IllegalArgumentException("0 < i <= " + degree(node) + 1);
         if (i == 1) {
             if (null != node.left) {
-                throw new UnsupportedOperationException("节点左子树不为空，不允许在此位置插入子树");
+                throw new UnsupportedOperationException("结点左子树不为空，不允许在此位置插入子树");
             }
             node.left = insertedTree.root();
         } else {
             if (null != node.right) {
-                throw new UnsupportedOperationException("节点右子树不为空，不允许在此位置插入子树");
+                throw new UnsupportedOperationException("结点右子树不为空，不允许在此位置插入子树");
             }
             node.right = insertedTree.root();
         }
@@ -206,11 +206,12 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     public Node<E> get(E elem) {
+        if (null == elem) return null;
         return this.get(elem, root);
     }
 
     private Node<E> get(E elem, Node<E> node) {
-        if (null == elem || null == node) return null;
+        if (null == node) return null;
         if (elem.equals(node.data)) return node;
         Node<E> result = get(elem, node.left);
         if (null != result) return result;
@@ -231,12 +232,12 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     /**
-     * 根据指定顺序遍历二叉树，得到节点集合
+     * 根据指定顺序遍历二叉树，得到结点集合
      *
      * @param order 遍历顺序 {@link cn.zefre.tree.bitree.OrderEnum}
      * @author pujian
      * @date 2021/7/21 10:41
-     * @return 遍历结果节点集合
+     * @return 遍历结果结点集合
      */
     public List<Node<E>> order(OrderEnum order) {
         List<Node<E>> orderList = new ArrayList<>();
@@ -261,7 +262,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     /**
      * 先序遍历二叉树
      *
-     * @param node 遍历节点
+     * @param node 遍历结点
      * @param preOrderList 遍历结果集合
      * @author pujian
      * @date 2021/7/21 10:28
@@ -276,7 +277,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     /**
      * 中序遍历二叉树
      *
-     * @param node 遍历节点
+     * @param node 遍历结点
      * @param preOrderList 遍历结果集合
      * @author pujian
      * @date 2021/7/21 10:31
@@ -291,7 +292,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     /**
      * 后序遍历二叉树
      *
-     * @param node 遍历节点
+     * @param node 遍历结点
      * @param preOrderList 遍历结果集合
      * @author pujian
      * @date 2021/7/21 10:31
