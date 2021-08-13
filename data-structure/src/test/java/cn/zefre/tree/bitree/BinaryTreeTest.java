@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class BinaryTreeTest {
 
-    private static BinaryTree<String> binaryTree = null;
+    private final static BinaryTree<String> binaryTree = new BinaryTree<>();
 
     /*
      * 初始化一棵二叉树
@@ -25,7 +25,6 @@ public class BinaryTreeTest {
      *
      */
     static {
-        BinaryTreeTest.binaryTree = new BinaryTree<>();
         BinaryTree.Node<String> root = binaryTree.add("a", null, false);
         BinaryTree.Node<String> bNode = binaryTree.add("b", root, true);
         BinaryTree.Node<String> cNode = binaryTree.add("c", root, false);
@@ -37,7 +36,7 @@ public class BinaryTreeTest {
 
     @Test
     public void testInit() {
-        BinaryTree<String> newBinaryTree = new BinaryTree<>(BinaryTreeTest.binaryTree);
+        BinaryTree<String> newBinaryTree = new BinaryTree<>(binaryTree);
         BinaryTree.Node<String> root = newBinaryTree.get("a");
         Assert.assertEquals("a", root.getData());
         Assert.assertEquals("b", root.left.getData());
@@ -46,42 +45,42 @@ public class BinaryTreeTest {
 
     @Test
     public void testGet() {
-        BinaryTree.Node<String> leftNode = BinaryTreeTest.binaryTree.get("b");
+        BinaryTree.Node<String> leftNode = binaryTree.get("b");
         Assert.assertEquals("b", leftNode.getData());
         Assert.assertEquals("d", leftNode.right.getData());
     }
 
     @Test
     public void testPreOrder() {
-        List<String> list = BinaryTreeTest.binaryTree.obtainByOrder(OrderEnum.PRE_ORDER);
+        List<String> list = binaryTree.obtainByOrder(OrderEnum.PRE_ORDER);
         List<String> expectedList = new ArrayList<>(Arrays.asList("a", "b", "d", "f", "c", "e", "g"));
-        Assert.assertEquals(list, expectedList);
+        Assert.assertEquals(expectedList, list);
     }
 
     @Test
     public void testInOrder() {
-        List<String> list = BinaryTreeTest.binaryTree.obtainByOrder(OrderEnum.IN_ORDER);
+        List<String> list = binaryTree.obtainByOrder(OrderEnum.IN_ORDER);
         List<String> expectedList = new ArrayList<>(Arrays.asList("b", "f", "d", "a", "e", "g", "c"));
-        Assert.assertEquals(list, expectedList);
+        Assert.assertEquals(expectedList, list);
     }
 
     @Test
     public void testPostOrder() {
-        List<String> list = BinaryTreeTest.binaryTree.obtainByOrder(OrderEnum.POST_ORDER);
+        List<String> list = binaryTree.obtainByOrder(OrderEnum.POST_ORDER);
         List<String> expectedList = new ArrayList<>(Arrays.asList("f", "d", "b", "g", "e", "c", "a"));
-        Assert.assertEquals(list, expectedList);
+        Assert.assertEquals(expectedList, list);
     }
 
     @Test
     public void testSequenceOrder() {
-        List<String> list = BinaryTreeTest.binaryTree.obtainByOrder(OrderEnum.SEQUENCE);
+        List<String> list = binaryTree.obtainByOrder(OrderEnum.SEQUENCE);
         List<String> expectedList = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g"));
-        Assert.assertEquals(list, expectedList);
+        Assert.assertEquals(expectedList, list);
     }
 
     @Test
     public void testClear() {
-        BinaryTree<String> newBinaryTree = new BinaryTree<>(BinaryTreeTest.binaryTree);
+        BinaryTree<String> newBinaryTree = new BinaryTree<>(binaryTree);
         List<BinaryTree.Node<String>> nodes = newBinaryTree.order(OrderEnum.SEQUENCE);
         BinaryTree.Node<String> aNode = nodes.get(0);
         BinaryTree.Node<String> bNode = nodes.get(1);
@@ -114,49 +113,48 @@ public class BinaryTreeTest {
 
     @Test
     public void testDepth() {
-        int depth = BinaryTreeTest.binaryTree.depth();
+        int depth = binaryTree.depth();
         Assert.assertEquals(4, depth);
     }
 
     @Test
     public void testParent() {
-        BinaryTree.Node<String> fNode = BinaryTreeTest.binaryTree.get("f");
-        BinaryTree.Node<String> dNode = BinaryTreeTest.binaryTree.parent(fNode);
+        BinaryTree.Node<String> fNode = binaryTree.get("f");
+        BinaryTree.Node<String> dNode = binaryTree.parent(fNode);
         Assert.assertEquals("d", dNode.getData());
     }
 
     @Test
     public void testLeftChild() {
-        BinaryTree.Node<String> cNode = BinaryTreeTest.binaryTree.get("c");
-        BinaryTree.Node<String> eNode = BinaryTreeTest.binaryTree.leftChild(cNode);
+        BinaryTree.Node<String> cNode = binaryTree.get("c");
+        BinaryTree.Node<String> eNode = binaryTree.leftChild(cNode);
         Assert.assertEquals("e", eNode.getData());
     }
 
     @Test
     public void testRightSibling() {
-        BinaryTree.Node<String> cNode = BinaryTreeTest.binaryTree.get("c");
-        BinaryTree.Node<String> nullNode = BinaryTreeTest.binaryTree.rightSibling(cNode);
+        BinaryTree.Node<String> cNode = binaryTree.get("c");
+        BinaryTree.Node<String> nullNode = binaryTree.rightSibling(cNode);
         Assert.assertNull(nullNode);
-        BinaryTree.Node<String> bNode = BinaryTreeTest.binaryTree.get("b");
-        Assert.assertEquals(cNode, BinaryTreeTest.binaryTree.rightSibling(bNode));
+        BinaryTree.Node<String> bNode = binaryTree.get("b");
+        Assert.assertEquals(cNode, binaryTree.rightSibling(bNode));
     }
 
     @Test
     public void testInsertAndDeleteChild() {
-        BinaryTree<String> newBinaryTree = new BinaryTree<>(BinaryTreeTest.binaryTree);
+        BinaryTree<String> newBinaryTree = new BinaryTree<>(binaryTree);
         BinaryTree.Node<String> bNode = newBinaryTree.get("b");
         Assert.assertEquals(1, newBinaryTree.degree(bNode));
         Tree<BinaryTree.Node<String>> dfTree = newBinaryTree.deleteChild(bNode, 1);
 
-        Assert.assertEquals(new ArrayList<>(Arrays.asList("a", "b", "c", "e", "g")), newBinaryTree.obtainByOrder(OrderEnum.SEQUENCE));
+        Assert.assertEquals(Arrays.asList("a", "b", "c", "e", "g"), newBinaryTree.obtainByOrder(OrderEnum.SEQUENCE));
 
         BinaryTree.Node<String> root = dfTree.root();
         Assert.assertEquals("d", root.getData());
         Assert.assertEquals("f", root.left.getData());
 
         newBinaryTree.insertChild(bNode, 1,  dfTree);
-        List<String> expectedList = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g"));
-        Assert.assertEquals(expectedList, newBinaryTree.obtainByOrder(OrderEnum.SEQUENCE));
+        Assert.assertEquals(Arrays.asList("a", "b", "c", "d", "e", "f", "g"), newBinaryTree.obtainByOrder(OrderEnum.SEQUENCE));
 
     }
 

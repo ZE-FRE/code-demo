@@ -40,12 +40,12 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
         this.root = root;
     }
 
-    public BinaryTree(BinaryTree<? extends E> bTree) {
+    public BinaryTree(BinaryTree<E> bTree) {
         if (null != bTree)
             this.root = this.init(bTree.root);
     }
 
-    private Node<E> init(Node<? extends E> node) {
+    private Node<E> init(Node<E> node) {
         if (null == node) return null;
         Node<E> newNode = new Node<>(node.data);
         newNode.left = init(node.left);

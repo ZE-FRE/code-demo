@@ -1,7 +1,7 @@
 package cn.zefre.tree.bitree;
 
 /**
- * 二叉排序树
+ * 二叉排序树(二叉搜索树)
  * 元素不允许重复
  *
  * @author pujian
@@ -10,8 +10,74 @@ package cn.zefre.tree.bitree;
 public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
 
     /**
-     * 查找元素对应的结点
-     * 若找到元素，则返回对应结点，否则返回null
+     *
+     * 如下代码，obj指向的还是同一块地址
+     * public static void main(String[] args) {
+     *     Object obj = new Object();
+     *     System.out.println(obj);
+     *     updateReference(obj);
+     *     System.out.println(obj);
+     * }
+     * private static void updateReference(Object obj) {
+     *     obj = new Object();
+     * }
+     *
+     * java中引用类型是引用传递，但是引用本身的值，还是值传递
+     * 所以在方法内部给引用(形参)赋值，只是改变了形参的值
+     * 同理，在c/c++中，方法参数是一个指针(形参)，但方法内部修改这个指针的指向，只是修改了形参指针的值
+     * 方法外部的指针并不会受影响，通过指针的指针才能改变方法外部的指针的值
+     * 即指针可以改变普通变量的值，指针的指针能改变指针的值
+     *
+     *
+     * Node *node1 = (Node*) malloc(sizeof(Node));
+     * Node *node2 = node1;
+     * Node **node3 = &node2;
+     * *node3 = NULL;
+     * 这时*node3 == node2 == NULL
+     *
+     * @author pujian
+     * @date 2021/8/11 17:03
+     */
+    private static class Wrapper<E> {
+        private Node<E> node;
+        public Wrapper() {}
+        public Wrapper(Node<E> node) {
+            this.node = node;
+        }
+    }
+
+    public BinarySortTree() {}
+
+    public BinarySortTree(BinarySortTree<E> bitSortTree) {
+        super(bitSortTree);
+    }
+
+    /**
+     * 迭代方式查找元素结点
+     * 若找到元素，返回对应结点，否则返回null
+     *
+     * @param elem 查找元素
+     * @author pujian
+     * @date 2021/8/13 14:05
+     * @return 元素对应结点
+     */
+    public Node<E> find(E elem) {
+        if (null == elem) return null;
+        Node<E> node = this.root;
+        while (null != node) {
+            if (elem.compareTo(node.data) == 0)
+                return node;
+            else if (elem.compareTo(node.data) < 0)
+                node = node.left;
+            else
+                node = node.right;
+        }
+        return null;
+    }
+
+    /**
+     * 递归方式查找元素对应的结点
+     * 若找到元素，返回对应结点，否则返回null
      *
      * @param elem 查找元素
      * @author pujian
@@ -20,61 +86,54 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      */
     public Node<E> get(E elem) {
         if (null == elem) return null;
-        Node<E> result = this.root;
-        return get(elem, result) ? result : null;
+        return get(elem, this.root);
     }
 
     /**
      * 递归查找元素对应结点
-     * 若找到元素，用node返回该元素对应结点
-     * 否则用node返回最后访问结点
-     *
-     * @param elem 查找元素
-     * @param node 若找到元素，则为元素对应结点，否则为最后访问结点
-     * @author pujian
-     * @date 2021/8/10 13:20
-     * @return 找到elem返回true，否则返回false
-     */
-    private boolean get(E elem, Node<E> node) {
-        // 未查找到元素结点
-        if (null == node) return false;
-        // 找到了对应元素结点
-        if (elem.compareTo(node.data) == 0)
-            return true;
-        // 小于当前结点，准备在左子树递归查找
-        else if (elem.compareTo(node.data) < 0)
-            node = node.left;
-        // 大于当前结点，准备在右子树递归查找
-        else
-            node = node.right;
-        // 递归查找
-        return get(elem, node);
-    }
-
-    /**
-     * 根据指定元素查找对应结点和它的双亲
      *
      * @param elem 查找元素
      * @param node 查找结点
-     * @param previousNode 查找成功时返回双亲结点，否则返回最后访问结点
      * @author pujian
      * @date 2021/8/10 13:20
-     * @return 找到元素返回对应结点，否则返回null
+     * @return 找到返回对应结点，否则返回null
      */
-    private Node<E> get(E elem, Node<E> node, Node<E> previousNode) {
+    private Node<E> get(E elem, Node<E> node) {
         // 未查找到元素结点
         if (null == node) return null;
         // 找到了对应元素结点
         if (elem.compareTo(node.data) == 0)
             return node;
-        // 记录双亲结点
-        previousNode = node;
         // 小于当前结点，在左子树递归查找
-        if (elem.compareTo(node.data) < 0)
-            return get(elem, node.left, previousNode);
+        else if (elem.compareTo(node.data) < 0)
+            return get(elem, node.left);
         // 大于当前结点，在右子树递归查找
         else
-            return get(elem, node.right, previousNode);
+            return get(elem, node.right);
+    }
+
+    /**
+     * 根据指定元素进行查找
+     *
+     * @param elem @NotNull 查找元素
+     * @param target @NotNull 找到元素时为对应结点，未找到时为最后访问结点
+     * @param previous @NotNull 找到元素时为目标结点的双亲(根结点无双亲)，未找到时为最后访问结点
+     * @author pujian
+     * @date 2021/8/11 17:06
+     * @return 找到元素返回true，否则返回false
+     * @throws NullPointerException target或previous为null
+     */
+    private boolean get(E elem, Wrapper<E> target, Wrapper<E> previous) {
+        if (null == target.node) return false;
+        if (elem.compareTo(target.node.data) == 0)
+            return true;
+        // 记录双亲结点
+        previous.node = target.node;
+        if (elem.compareTo(target.node.data) < 0)
+            target.node = target.node.left;
+        else
+            target.node = target.node.right;
+        return get(elem, target, previous);
     }
 
     /**
@@ -87,55 +146,24 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      */
     public boolean add(E elem) {
         if (null == elem) return false;
-        Node<E> lastNode = this.root;
-        // 判断是否已存在
-        if (get(elem, lastNode))
+        // 最后访问结点
+        Wrapper<E> last =  new Wrapper<>();
+        if (get(elem, new Wrapper<>(this.root), last)) {
+            // 元素已存在
             return false;
+        }
         Node<E> newNode = new Node<>(elem);
         // 当前树是空树，构建此树
-        if (null == lastNode) {
+        if (null == this.root) {
             this.root = newNode;
         } else {
-            if (elem.compareTo(lastNode.data) < 0)
-                lastNode.left = newNode;
+            if (elem.compareTo(last.node.data) < 0)
+                // 插入左结点
+                last.node.left = newNode;
             else
-                lastNode.right = newNode;
+                // 插入右结点
+                last.node.right = newNode;
         }
-        return true;
-    }
-
-
-    /**
-     * 若元素存在，则删除元素对应结点
-     *
-     * @param elem 删除元素
-     * @author pujian
-     * @date 2021/8/10 20:41
-     * @return 删除了结点返回true，否则返回false
-     */
-    public boolean remove(E elem) {
-        if (null == elem) return false;
-        return remove(this.root, elem);
-    }
-
-    /**
-     * 递归找到指定元素，找到后删除对应结点
-     *
-     * @author pujian
-     * @date 2021/8/10 21:25
-     * @param node 删除结点
-     * @param elem 删除元素
-     * @return 成功删除了该元素结点返回true，否则返回false
-     */
-    private boolean remove(Node<E> node, E elem) {
-        // 未找到删除结点
-        if (null == node) return false;
-        if (elem.compareTo(node.data) == 0)
-            delete(node);
-        else if (elem.compareTo(node.data) < 0)
-            delete(node.left);
-        else
-            delete(node.right);
         return true;
     }
 
@@ -148,45 +176,66 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * ④ 左右子树都有
      * 左右都子树存在时可以找它的直接前驱或直接后继来替代它
      *
-     *
+     * @param elem 删除元素
      * @author pujian
-     * @date 2021/8/10 21:27
-     * @param deletedNode 待删除结点
+     * @date 2021/8/10 20:41
+     * @return 删除了结点返回true，否则返回false
      */
-    private void delete(Node<E> deletedNode) {
-        Node<E> temp = deletedNode;
-        if (null == deletedNode.left) {
-            // 待删除结点无左子树
-            deletedNode = deletedNode.right;
-            temp.right = null;
-        } else if (null == deletedNode.right) {
-            // 待删除结点无右子树
-            deletedNode = deletedNode.left;
-            temp.left = null;
-        } else {
-            // 待删除子树左、右子树都存在
-            /* 按中序遍历找直接前驱
+    public boolean remove(E elem) {
+        if (null == elem || null == this.root) return false;
+        Wrapper<E> target = new Wrapper<>(this.root);
+        Wrapper<E> parent = new Wrapper<>();
+        // 未找到删除结点
+        if (!get(elem, target, parent)) return false;
+
+        // 删除结点
+        Node<E> deletedNode = target.node;
+        // 删除节点的双亲
+        Node<E> parentNode = parent.node;
+        // new一个结点作为新结点，屏蔽掉删除结点是否是根结点的差异
+        Node<E> extendedRoot = new Node<>(null);
+        extendedRoot.left = this.root;
+        // 删除结点是根节点
+        if (parentNode == null) parentNode = extendedRoot;
+        // 删除节点的继任
+        Node<E> successor;
+        if (deletedNode.left == null) { // 删除结点无左子树
+            successor = deletedNode.right;
+            deletedNode.right = null;
+        } else if (deletedNode.right == null) { // 删除结点无右子树
+            successor = deletedNode.left;
+            deletedNode.left = null;
+        } else { // 删除结点左、右子树都存在
+            /*
+             * 按中序遍历找直接前驱
              * 中序遍历下结点直接前驱是它的左孩子或左孩子的最后一个右孩子
              */
-            // 直接前驱的双亲
-            Node<E> previousParent = deletedNode;
             // 直接前驱
-            Node<E> previousNode = deletedNode.left;
-            while (previousNode.right != null) {
-                previousParent = previousNode;
-                previousNode = previousNode.right;
+            Node<E> directPrev = deletedNode.left;
+            // 直接前驱的双亲
+            Node<E> directPrevParent = deletedNode;
+            while (directPrev.right != null) {
+                directPrevParent = directPrev;
+                directPrev = directPrev.right;
             }
-            if (previousParent == deletedNode) {
-                // 直接前驱是它的左孩子（即左孩子没有右子树）
-                deletedNode = deletedNode.left;
-            } else {
-                previousParent.right = null;
-                previousNode.left = deletedNode.left;
-                previousNode.right = deletedNode.right;
-                deletedNode = previousNode;
+            if (directPrevParent != deletedNode) {
+                directPrevParent.right = directPrev.left;
+                directPrev.left = deletedNode.left;
             }
-            temp.left = null;
+            directPrev.right = deletedNode.right;
+            successor = directPrev;
+            deletedNode.left = null;
+            deletedNode.right = null;
         }
+        // 双亲结点连接继任结点
+        if (parentNode.left == deletedNode)
+            parentNode.left = successor;
+        else
+            parentNode.right = successor;
+        // 恢复原根结点
+        this.root = extendedRoot.left;
+        extendedRoot.left = null;
+        return true;
     }
 
 }
