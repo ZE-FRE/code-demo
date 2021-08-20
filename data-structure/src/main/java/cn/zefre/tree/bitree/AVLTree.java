@@ -1,5 +1,7 @@
 package cn.zefre.tree.bitree;
 
+import java.util.Objects;
+
 /**
  * 平衡二叉树
  * 又叫AVL树、Self-Balancing Binary Search Tree、Height-Balanced Binary Search Tree
@@ -7,7 +9,7 @@ package cn.zefre.tree.bitree;
  * @author pujian
  * @date 2021/8/13 14:36
  */
-public class AVLTree<E> {
+public class AVLTree<E extends Comparable<E>> {
 
     /**
      * 平衡因子枚举
@@ -40,8 +42,11 @@ public class AVLTree<E> {
         }
     }
 
+    /**
+     * AVL树结点
+     */
     static class Node<E> {
-        E elem;
+        E data;
         /**
          * 平衡因子
          * 结点左子树与右子树高度之差，取值范围：-1  0  1
@@ -50,5 +55,42 @@ public class AVLTree<E> {
         Node<E> left;
         Node<E> right;
 
+        Node(E data) {
+            this(data, BalanceFactor.EH);
+        }
+
+        Node(E data, BalanceFactor bf) {
+            this.data = data;
+            this.bf = bf;
+        }
+
     }
+
+    /**
+     * 根节点
+     */
+    private Node<E> root;
+
+    /**
+     * 查找元素结点
+     *
+     * @param elem 元素值
+     * @author pujian
+     * @date 2021/8/20 13:25
+     * @return 元素结点
+     */
+    public Node<E> get(E elem) {
+        if (null == elem) return null;
+        Node<E> target = this.root;
+        while (null != target) {
+            if (target.data.compareTo(elem) == 0)
+                return target;
+            else if (elem.compareTo(target.data) < 0)
+                target = target.left;
+            else
+                target = target.right;
+        }
+        return null;
+    }
+
 }

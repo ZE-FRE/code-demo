@@ -1,5 +1,7 @@
 package cn.zefre.tree.bitree;
 
+import java.util.Objects;
+
 /**
  * 二叉排序树(二叉搜索树)
  * 元素不允许重复
@@ -137,34 +139,72 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
     }
 
     /**
-     * 若此二叉排序树中不存在相同元素，插入给定元素
+     * 插入元素（迭代）
      *
      * @param elem 待插入元素
      * @author pujian
-     * @date 2021/8/9 16:05
-     * @return 若不存在相同元素，则插入并返回true，否则返回false
+     * @date 2021/8/20 16:29
+     * @return 插入成功返回true，元素存在则返回false
      */
     public boolean add(E elem) {
-        if (null == elem) return false;
-        // 最后访问结点
-        Wrapper<E> last =  new Wrapper<>();
-        if (get(elem, new Wrapper<>(this.root), last)) {
-            // 元素已存在
-            return false;
-        }
+        Objects.requireNonNull(elem);
         Node<E> newNode = new Node<>(elem);
-        // 当前树是空树，构建此树
         if (null == this.root) {
             this.root = newNode;
-        } else {
-            if (elem.compareTo(last.node.data) < 0)
-                // 插入左结点
-                last.node.left = newNode;
-            else
-                // 插入右结点
-                last.node.right = newNode;
+            return true;
         }
+        Node<E> parent = null;
+        Node<E> node = this.root;
+        while (node != null) {
+            if (elem.compareTo(node.data) == 0)
+                return false;
+            parent = node;
+            if (elem.compareTo(node.data) < 0)
+                node = node.left;
+            else
+                node = node.right;
+        }
+        if (elem.compareTo(parent.data) < 0)
+            parent.left = newNode;
+        else
+            parent.right = newNode;
         return true;
+    }
+
+    /**
+     * 插入元素
+     *
+     * @param elem 待插入元素
+     * @author pujian
+     * @date 2021/8/20 16:26
+     */
+    public void insert(E elem) {
+        Objects.requireNonNull(elem);
+        if (null == this.root)
+            this.root = new Node<>(elem);
+        else
+            insert(elem, this.root);
+    }
+
+    /**
+     * 插入元素（递归）
+     *
+     * @param elem 待插入元素
+     * @param node 结点
+     * @author pujian
+     * @date 2021/8/20 16:24
+     * @return 原结点
+     */
+    private Node<E> insert(E elem, Node<E> node) {
+        if (null == node)
+            return new Node<>(elem);
+        else if (elem.compareTo(node.data) == 0)
+            return node;
+        else if (elem.compareTo(node.data) < 0)
+            node.left = insert(elem, node.left);
+        else
+            node.right = insert(elem, node.right);
+        return node;
     }
 
     /**
@@ -174,7 +214,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * ② 只有右子树
      * ③ 只有左子树
      * ④ 左右子树都有
-     * 左右都子树存在时可以找它的直接前驱或直接后继来替代它
+     * 左右子树都存在时可以找它的直接前驱或直接后继来替代它
      *
      * @param elem 删除元素
      * @author pujian

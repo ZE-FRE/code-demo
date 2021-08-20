@@ -53,6 +53,16 @@ public class BinarySortTreeTest {
     }
 
     @Test
+    public void testInsert() {
+        BinarySortTree<Integer> bsTree = new BinarySortTree<>();
+        for (Integer num : Arrays.asList(34, 24, 18, 39, 28, 6, 64, 14, 42, 48, 32, 66, 27)) {
+            bsTree.insert(num);
+        }
+        List<Integer> expected = Arrays.asList(6, 14, 18, 24, 27, 28, 32, 34, 39, 42, 48, 64, 66);
+        Assert.assertEquals(expected, bsTree.obtainByOrder(OrderEnum.IN_ORDER));
+    }
+
+    @Test
     public void testRemove() {
         BinarySortTree<Integer> binarySortTree = new BinarySortTree<>(bitSortTree);
         Assert.assertFalse(binarySortTree.remove(null));
