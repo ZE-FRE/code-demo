@@ -172,6 +172,28 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
     }
 
     /**
+     * 插入元素（递归）
+     *
+     * @param elem 待插入元素
+     * @param node 结点
+     * @author pujian
+     * @date 2021/8/24 17:18
+     * @return 插入成功返回true，元素存在则返回false
+     */
+    private boolean add(E elem, Node<E> node) {
+        if (elem.compareTo(node.data) == 0)
+            return false;
+        else if (elem.compareTo(node.data) < 0) {
+            if (null != node.left) return add(elem, node.left);
+            else node.left = new Node<>(elem);
+        } else {
+            if (null != node.right) return add(elem, node.right);
+            else node.right = new Node<>(elem);
+        }
+        return true;
+    }
+
+    /**
      * 插入元素
      *
      * @param elem 待插入元素
@@ -180,10 +202,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      */
     public void insert(E elem) {
         Objects.requireNonNull(elem);
-        if (null == this.root)
-            this.root = new Node<>(elem);
-        else
-            insert(elem, this.root);
+        this.root = insert(elem, this.root);
     }
 
     /**
