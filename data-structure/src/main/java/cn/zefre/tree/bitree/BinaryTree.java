@@ -98,7 +98,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     public Node<E> parent(Node<E> node) {
         if (null == node || isEmpty())
             return null;
-        List<Node<E>> sequenceList = new LinkedList<>();
+        List<Node<E>> sequenceList = new ArrayList<>();
         sequenceList.add(root);
         for (int i = 0; i < sequenceList.size(); i++) {
             Node<E> parentNode = sequenceList.get(i);
@@ -312,7 +312,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
      * @return 层序遍历结果集
      */
     private List<Node<E>> sequenceOrder() {
-        List<Node<E>> sequenceList = new LinkedList<>();
+        List<Node<E>> sequenceList = new ArrayList<>();
         if (null != this.root) {
             sequenceList.add(this.root);
         }

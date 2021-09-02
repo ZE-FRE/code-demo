@@ -242,20 +242,18 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      */
     public boolean remove(E elem) {
         if (null == elem || null == this.root) return false;
+        // new一个结点作为新结点，屏蔽掉删除结点是否是根结点的差异
+        Node<E> extendedRoot = new Node<>(null);
+        extendedRoot.left = this.root;
+
         Wrapper<E> target = new Wrapper<>(this.root);
-        Wrapper<E> parent = new Wrapper<>();
+        Wrapper<E> parent = new Wrapper<>(extendedRoot);
         // 未找到删除结点
         if (!get(elem, target, parent)) return false;
-
         // 删除结点
         Node<E> deletedNode = target.node;
         // 删除节点的双亲
         Node<E> parentNode = parent.node;
-        // new一个结点作为新结点，屏蔽掉删除结点是否是根结点的差异
-        Node<E> extendedRoot = new Node<>(null);
-        extendedRoot.left = this.root;
-        // 删除结点是根节点
-        if (parentNode == null) parentNode = extendedRoot;
         // 删除节点的继任
         Node<E> successor;
         if (deletedNode.left == null) { // 删除结点无左子树
@@ -294,6 +292,69 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
         // 恢复原根结点
         this.root = extendedRoot.left;
         extendedRoot.left = null;
+        return true;
+    }
+
+    /**
+     * 删除的另一种实现
+     *
+     * @param elem 待删除元素
+     * @author pujian
+     * @date 2021/8/30 10:39
+     * @return 成功删除返回true，元素不存在返回false
+     */
+    public boolean delete(E elem) {
+        if (null == elem || null == this.root) return false;
+        /*
+         * 扩展一个根结点，屏蔽删除根节点的差异
+         */
+        Node<E> extendedRoot = new Node<>(null);
+        extendedRoot.right = this.root;
+        /*
+         * 寻找待删除结点及它的双亲
+         */
+        Wrapper<E> parent = new Wrapper<>(extendedRoot);
+        Wrapper<E> target = new Wrapper<>(this.root);
+        if (!get(elem, target, parent)) return false;
+        Node<E> parentNode = parent.node;
+        Node<E> deletedNode = target.node;
+        if (deletedNode.left == null && deletedNode.right == null) { // 叶子结点
+            if (parentNode.left == deletedNode) parentNode.left = null;
+            else parentNode.right = null;
+        } else if (deletedNode.left == null) { // 只有右子树
+            Node<E> rightNode = deletedNode.right;
+            deletedNode.data = rightNode.data;
+            deletedNode.left = rightNode.left;
+            deletedNode.right = rightNode.right;
+            rightNode.left = null;
+            rightNode.right = null;
+        } else if (deletedNode.right == null) { // 只有左子树
+            Node<E> leftNode = deletedNode.left;
+            deletedNode.data = leftNode.data;
+            deletedNode.left = leftNode.left;
+            deletedNode.right = leftNode.right;
+            leftNode.left = null;
+            leftNode.right = null;
+        } else { // 既有左子树又有右子树，找直接后继
+            Node<E> successorParent = deletedNode;
+            Node<E> directSuccessor = deletedNode.right;
+            while (directSuccessor.left != null) {
+                successorParent = directSuccessor;
+                directSuccessor = directSuccessor.left;
+            }
+            if (successorParent == deletedNode) { // 直接后继就是删除结点的右结点
+                deletedNode.data = directSuccessor.data;
+                deletedNode.right = directSuccessor.right;
+                directSuccessor.right = null;
+            } else {
+                deletedNode.data = directSuccessor.data;
+                successorParent.left = directSuccessor.right;
+                directSuccessor.right = null;
+            }
+        }
+        // 还原根节点
+        this.root = extendedRoot.right;
+        extendedRoot.right = null;
         return true;
     }
 

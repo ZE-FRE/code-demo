@@ -81,11 +81,41 @@ public class BinarySortTreeTest {
         // ①测试删除结点直接前驱是左结点(左节点无右子树)
         binarySortTree.remove(28);
         Assert.assertEquals(Integer.valueOf(27), binarySortTree.root.left.right.getData());
-        // ②测试删除结点直接前驱不是左节点(左节点右右子树)
+        // ②测试删除结点直接前驱不是左节点(左节点有右子树)
         binarySortTree.remove(64);
         Assert.assertEquals(Integer.valueOf(48), binarySortTree.root.right.getData());
         // 测试删除完成后树结构
         Assert.assertEquals(Arrays.asList(6, 14, 24, 27, 32, 42, 48, 66), binarySortTree.obtainByOrder(OrderEnum.IN_ORDER));
+
+    }
+
+    @Test
+    public void testDelete() {
+        BinarySortTree<Integer> binarySortTree = new BinarySortTree<>(bitSortTree);
+        Assert.assertFalse(binarySortTree.delete(null));
+        // 测试删除不存在结点
+        Assert.assertFalse(binarySortTree.delete(100));
+        // 测试删除结点是根节点
+        binarySortTree.delete(34);
+        Assert.assertEquals(Integer.valueOf(39), binarySortTree.root().getData());
+        // 测试删除叶子结点
+        binarySortTree.delete(66);
+        Assert.assertNull(binarySortTree.get(64).right);
+        // 测试删除结点无左子树
+        binarySortTree.delete(42);
+        Assert.assertEquals(Integer.valueOf(48), binarySortTree.get(64).left.getData());
+        // 测试删除结点无右子树
+        binarySortTree.delete(18);
+        Assert.assertEquals(Integer.valueOf(6), binarySortTree.get(24).left.getData());
+        // 测试删除结点左、右子树都存在
+        // ①测试删除结点直接前驱不是左节点(左节点有右子树)
+        binarySortTree.delete(24);
+        Assert.assertEquals(Integer.valueOf(27), binarySortTree.root.left.getData());
+        // ②测试删除结点直接后继是右结点(右节点无左子树)
+        binarySortTree.delete(27);
+        Assert.assertEquals(Integer.valueOf(28), binarySortTree.root.left.getData());
+        // 测试删除完成后树结构
+        Assert.assertEquals(Arrays.asList(39, 28, 64, 6, 32, 48, 14), binarySortTree.obtainByOrder(OrderEnum.SEQUENCE));
 
     }
 }

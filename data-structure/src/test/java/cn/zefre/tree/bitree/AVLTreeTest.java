@@ -3,6 +3,7 @@ package cn.zefre.tree.bitree;
 import org.junit.Assert;
 import org.junit.Test;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -147,5 +148,135 @@ public class AVLTreeTest {
         Assert.assertEquals(Integer.valueOf(8), node.data);
         Assert.assertEquals(Integer.valueOf(3), node.left.data);
         Assert.assertEquals(Integer.valueOf(9), node.right.data);
+    }
+
+
+    @Test
+    public void testRemove() {
+        AVLTree<Integer> avlTree = new AVLTree<>();
+        // 测试删除avl树只有一个结点的情况
+        avlTree.add(100);
+        avlTree.remove(100);
+        Assert.assertTrue(avlTree.sequenceOrder().isEmpty());
+
+        /*
+         *      100
+         *   80
+         */
+        avlTree.add(100);
+        avlTree.add(80);
+        avlTree.remove(100);
+        Assert.assertEquals(Collections.singletonList(80), avlTree.sequenceOrder());
+        avlTree.remove(80);
+
+        /*
+         *      100
+         *          120
+         */
+        avlTree.add(100);
+        avlTree.add(120);
+        avlTree.remove(100);
+        Assert.assertEquals(Collections.singletonList(120), avlTree.sequenceOrder());
+        avlTree.remove(120);
+
+        /*
+         *     100
+         *  80     120
+         */
+        avlTree.add(100);
+        avlTree.add(80);
+        avlTree.add(120);
+        avlTree.remove(100);
+        Assert.assertEquals(Arrays.asList(120, 80), avlTree.sequenceOrder());
+        avlTree.remove(120);
+        avlTree.remove(80);
+
+        /*
+         * 构造一棵avl树
+         *                    18
+         *        10                     30
+         *    8       14           25          45
+         *  3   9   12  16      22    28    35    60
+         *                    20    27          50
+         *
+         */
+        for (Integer num : Arrays.asList(30,22,18,16,20,8,12,3,10,9,45,60,50,25,35,28,14,27)) {
+            avlTree.add(num);
+        }
+
+        // 测试删除结点不存在
+        Assert.assertFalse(avlTree.remove(55));
+
+        // 测试删除叶子结点
+        avlTree.remove(35);
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,28,45,60,20,27), avlTree.sequenceOrder());
+        /*
+         * 删除后的avl树
+         *                    18
+         *        10                      30
+         *    8       14           25            50
+         *  3   9   12  16      22    28      45    60
+         *                    20    27
+         *
+         */
+
+        // 测试删除只有左子树结点
+        avlTree.remove(28);
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,27,45,60,20), avlTree.sequenceOrder());
+        /*
+         * 删除后的avl树
+         *                    18
+         *        10                      30
+         *    8       14          25             50
+         *  3   9   12  16     22    27       45    60
+         *                   20
+         */
+
+        // 测试删除结点左右子树都存在，且直接后继是它的右结点
+        avlTree.remove(25);
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,22,50,3,9,12,16,20,27,45,60), avlTree.sequenceOrder());
+        /*
+         *                   18                                                         18
+         *        10                      30                                10                      30
+         *    8       14           27            50       ---->        8         14            22        50
+         *  3   9   12  16      22            45    60               3   9     12  16        20  27    45  60
+         *                    20
+         */
+
+        // 测试删除结点左右子树都存在，且直接后继不是它的右结点
+        avlTree.remove(18);
+        Assert.assertEquals(Arrays.asList(20,10,30,8,14,22,50,3,9,12,16,27,45,60), avlTree.sequenceOrder());
+        /*
+         * 删除后的avl树
+         *                   20
+         *        10                      30
+         *    8       14             22        50
+         *  3   9   12  16             27    45  60
+         *
+         */
+
+        // 测试删除结点只有右子树
+        avlTree.remove(22);
+        Assert.assertEquals(Arrays.asList(20,10,30,8,14,27,50,3,9,12,16,45,60), avlTree.sequenceOrder());
+        /*
+         * 删除后的avl树
+         *                    20
+         *        10                      30
+         *    8       14             27        50
+         *  3   9   12  16                   45  60
+         *
+         */
+
+        avlTree.remove(27);
+        Assert.assertEquals(Arrays.asList(20,10,50,8,14,30,60,3,9,12,16,45), avlTree.sequenceOrder());
+        /*
+         * 删除后的avl树
+         *                    20                                              20
+         *        10                      30            ---->       10                  50
+         *    8       14                       50              8         14         30      60
+         *  3   9   12  16                   45  60         3    9     12  16         45
+         *
+         */
+
     }
 }
