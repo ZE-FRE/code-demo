@@ -1,10 +1,7 @@
 package cn.zefre.tree.bitree;
 
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 平衡二叉树
@@ -18,26 +15,48 @@ public class AVLTree<E extends Comparable<E>> {
     /**
      * AVL树结点
      */
-    static class Node<E> {
+    static class AVLNode<E> implements Node<E> {
         E data;
         int height;
-        Node<E> left;
-        Node<E> right;
+        AVLNode<E> left;
+        AVLNode<E> right;
 
-        Node(E data) {
+        AVLNode(E data) {
             this(data, 1);
         }
 
-        Node(E data, int height) {
+        AVLNode(E data, int height) {
             this.data = data;
             this.height = height;
         }
 
+        @Override
         public E getData() {
             return this.data;
         }
 
+        @Override
+        public Node<E> left() {
+            return this.left;
+        }
+
+        @Override
+        public Node<E> right() {
+            return this.right;
+        }
+
     }
+
+    /**
+     * 二叉树遍历工具
+     */
+    private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
+
+    /**
+     * AVL树根节点
+     */
+    private AVLNode<E> root;
+
 
     /**
      * 计算结点的高度
@@ -47,7 +66,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/8/25 13:41
      * @return 结点高度
      */
-    private int calculateHeight(Node<?> node) {
+    private int calculateHeight(AVLNode<?> node) {
         Objects.requireNonNull(node);
         int leftHeight = null == node.left ? 0 : node.left.height;
         int rightHeight = null == node.right ? 0 : node.right.height;
@@ -62,17 +81,12 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/8/25 16:42
      * @return 结点平衡因子
      */
-    private int calculateBalanceFactor(Node<?> node) {
+    private int calculateBalanceFactor(AVLNode<?> node) {
         Objects.requireNonNull(node);
         int leftHeight = null == node.left ? 0 : node.left.height;
         int rightHeight = null == node.right ? 0 : node.right.height;
         return leftHeight - rightHeight;
     }
-
-    /**
-     * 根节点
-     */
-    private Node<E> root;
 
     /**
      * 查找元素结点
@@ -82,9 +96,9 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/8/20 13:25
      * @return 元素结点
      */
-    public Node<E> get(E elem) {
+    public AVLNode<E> get(E elem) {
         if (null == elem) return null;
-        Node<E> target = this.root;
+        AVLNode<E> target = this.root;
         while (null != target) {
             if (target.data.compareTo(elem) == 0)
                 return target;
@@ -107,7 +121,7 @@ public class AVLTree<E extends Comparable<E>> {
     public boolean add(E elem) {
         if (null == elem) return false;
         if (null == this.root) {
-            this.root = new Node<>(elem);
+            this.root = new AVLNode<>(elem);
             return true;
         }
         return add(elem, this.root);
@@ -122,18 +136,18 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/8/25 17:30
      * @return 插入成功返回true，若存在相同元素，返回false
      */
-    private boolean add(E elem, Node<E> node) {
+    private boolean add(E elem, AVLNode<E> node) {
         boolean addSuccess;
         if (elem.compareTo(node.data) == 0)
             return false;
         else if (elem.compareTo(node.data) < 0) {
             if (null == node.left) {
-                node.left = new Node<>(elem);
+                node.left = new AVLNode<>(elem);
                 addSuccess = true;
             } else addSuccess = add(elem, node.left);
         } else {
             if (null == node.right) {
-                node.right = new Node<>(elem);
+                node.right = new AVLNode<>(elem);
                 addSuccess = true;
             }
             else addSuccess = add(elem, node.right);
@@ -157,7 +171,7 @@ public class AVLTree<E extends Comparable<E>> {
     public boolean remove(E elem) {
         if (null == elem || null == this.root) return false;
         // 扩展一个根节点
-        Node<E> extendedRoot = new Node<>(null);
+        AVLNode<E> extendedRoot = new AVLNode<>(null);
         extendedRoot.right = this.root;
         extendedRoot.height = calculateHeight(extendedRoot);
         boolean deleted = remove(elem, extendedRoot, this.root);
@@ -176,7 +190,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/9/2 10:09
      * @return 成功删除返回true，元素不存在返回false
      */
-    private boolean remove(E elem, Node<E> parentNode, Node<E> deletedNode) {
+    private boolean remove(E elem, AVLNode<E> parentNode, AVLNode<E> deletedNode) {
         if (null == deletedNode) { // 结点不存在，返回false
             return false;
         }
@@ -206,7 +220,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/9/2 10:14
      */
-    private void delete(Node<E> parentNode, Node<E> deletedNode) {
+    private void delete(AVLNode<E> parentNode, AVLNode<E> deletedNode) {
         if (null == deletedNode.left && null == deletedNode.right) { // 叶子节点
             if (parentNode.left == deletedNode) parentNode.left = null;
             else parentNode.right = null;
@@ -218,7 +232,7 @@ public class AVLTree<E extends Comparable<E>> {
             deletedNode.left = null;
         } else { // 左右子树都存在
             // 找直接后继
-            Node<E> successor = deletedNode.right;
+            AVLNode<E> successor = deletedNode.right;
             if (null == successor.left) { // 直接后继就是删除节点的右结点
                 deletedNode.data = successor.data;
                 deletedNode.right = successor.right;
@@ -241,7 +255,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/8/25 17:29
      */
-    private void balance(Node<E> node) {
+    private void balance(AVLNode<E> node) {
         int nodeBf = calculateBalanceFactor(node);
         if (nodeBf > 1) { // 左子树高
             if (calculateBalanceFactor(node.left) >= 0) {
@@ -271,9 +285,9 @@ public class AVLTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/8/25 17:28
      */
-    private void leftRotate(Node<E> node) {
+    private void leftRotate(AVLNode<E> node) {
         E originalRootData = node.data;
-        Node<E> right = node.right;
+        AVLNode<E> right = node.right;
         node.data = right.data;
         node.right = right.right;
         right.data = originalRootData;
@@ -291,9 +305,9 @@ public class AVLTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/8/25 17:28
      */
-    private void rightRotate(Node<E> node) {
+    private void rightRotate(AVLNode<E> node) {
         E originalRootData = node.data;
-        Node<E> left = node.left;
+        AVLNode<E> left = node.left;
         node.data = left.data;
         node.left = left.left;
         left.data = originalRootData;
@@ -305,54 +319,15 @@ public class AVLTree<E extends Comparable<E>> {
     }
 
     /**
-     * 中序遍历
+     * 按指定顺序遍历AVL树
      *
+     * @param orderEnum 遍历顺序
      * @author pujian
-     * @date 2021/8/25 17:38
-     * @return 中序遍历元素集合
+     * @date 2021/9/6 17:33
+     * @return 遍历结果集
      */
-    public List<E> inOrder() {
-        List<E> resultList = new ArrayList<>();
-        inOrder(this.root, resultList);
-        return resultList;
-    }
-
-    /**
-     * 中序遍历
-     *
-     * @param node 当前遍历结点
-     * @param list 中序遍历元素集合
-     * @author pujian
-     * @date 2021/8/25 17:38
-     */
-    private void inOrder(Node<E> node, List<E> list) {
-        if (null == node) return;
-        inOrder(node.left, list);
-        list.add(node.data);
-        inOrder(node.right, list);
-    }
-
-    /**
-     * 层序遍历
-     *
-     * @author pujian
-     * @date 2021/8/27 10:41
-     * @return 层序遍历元素集合
-     */
-    public List<E> sequenceOrder() {
-        List<Node<E>> resultList = new ArrayList<>();
-        if (null != this.root) {
-            resultList.add(this.root);
-        }
-        Node<E> node;
-        for (int i = 0; i < resultList.size(); i++) {
-            node = resultList.get(i);
-            if (null != node.left)
-                resultList.add(node.left);
-            if (null != node.right)
-                resultList.add(node.right);
-        }
-        return resultList.stream().map(Node::getData).collect(Collectors.toList());
+    public List<E> sequence(OrderEnum orderEnum) {
+        return binaryTreeOrder.sequence(this.root, orderEnum);
     }
 
 }

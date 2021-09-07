@@ -1,5 +1,6 @@
 package cn.zefre.tree.bitree;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Objects;
  * @author pujian
  * @date 2021/8/9 16:00
  */
-public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
+public class BinarySortTree<E extends Comparable<E>> {
 
     /**
      *
@@ -31,9 +32,9 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * 即指针可以改变普通变量的值，指针的指针能改变指针的值
      *
      *
-     * Node *node1 = (Node*) malloc(sizeof(Node));
-     * Node *node2 = node1;
-     * Node **node3 = &node2;
+     * BSTNode *node1 = (BSTNode*) malloc(sizeof(BSTNode));
+     * BSTNode *node2 = node1;
+     * BSTNode **node3 = &node2;
      * *node3 = NULL;
      * 这时*node3 == node2 == NULL
      *
@@ -41,17 +42,71 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/11 17:03
      */
     private static class Wrapper<E> {
-        private Node<E> node;
-        public Wrapper() {}
-        public Wrapper(Node<E> node) {
+        private BSTNode<E> node;
+        public Wrapper(BSTNode<E> node) {
             this.node = node;
         }
     }
 
-    public BinarySortTree() {}
+    /**
+     * 二叉搜索树结点
+     *
+     * @author pujian
+     * @date 2021/9/7 10:50
+     */
+    static class BSTNode<E> implements Node<E> {
+        /**
+         * 结点值
+         */
+        E data;
+        /**
+         * 左结点
+         */
+        BSTNode<E> left;
+        /**
+         * 右节点
+         */
+        BSTNode<E> right;
 
-    public BinarySortTree(BinarySortTree<E> bitSortTree) {
-        super(bitSortTree);
+        BSTNode(E data) {
+            this.data = data;
+        }
+
+        @Override
+        public E getData() {
+            return this.data;
+        }
+
+        @Override
+        public BSTNode<E> left() {
+            return this.left;
+        }
+
+        @Override
+        public BSTNode<E> right() {
+            return this.right;
+        }
+    }
+
+    /**
+     * 二叉树遍历工具
+     */
+    private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
+
+    /**
+     * 根节点
+     */
+    private BSTNode<E> root;
+
+    /**
+     * 获取根节点
+     *
+     * @author pujian
+     * @date 2021/9/7 10:40
+     * @return 根节点
+     */
+    public BSTNode<E> root() {
+        return this.root;
     }
 
     /**
@@ -63,9 +118,9 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/13 14:05
      * @return 元素对应结点
      */
-    public Node<E> find(E elem) {
+    public BSTNode<E> find(E elem) {
         if (null == elem) return null;
-        Node<E> node = this.root;
+        BSTNode<E> node = this.root;
         while (null != node) {
             if (elem.compareTo(node.data) == 0)
                 return node;
@@ -86,7 +141,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/10 13:11
      * @return 元素对应结点
      */
-    public Node<E> get(E elem) {
+    public BSTNode<E> get(E elem) {
         if (null == elem) return null;
         return get(elem, this.root);
     }
@@ -100,7 +155,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/10 13:20
      * @return 找到返回对应结点，否则返回null
      */
-    private Node<E> get(E elem, Node<E> node) {
+    private BSTNode<E> get(E elem, BSTNode<E> node) {
         // 未查找到元素结点
         if (null == node) return null;
         // 找到了对应元素结点
@@ -148,13 +203,13 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      */
     public boolean add(E elem) {
         Objects.requireNonNull(elem);
-        Node<E> newNode = new Node<>(elem);
+        BSTNode<E> newNode = new BSTNode<>(elem);
         if (null == this.root) {
             this.root = newNode;
             return true;
         }
-        Node<E> parent = null;
-        Node<E> node = this.root;
+        BSTNode<E> parent = null;
+        BSTNode<E> node = this.root;
         while (node != null) {
             if (elem.compareTo(node.data) == 0)
                 return false;
@@ -180,15 +235,15 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/24 17:18
      * @return 插入成功返回true，元素存在则返回false
      */
-    private boolean add(E elem, Node<E> node) {
+    private boolean add(E elem, BSTNode<E> node) {
         if (elem.compareTo(node.data) == 0)
             return false;
         else if (elem.compareTo(node.data) < 0) {
             if (null != node.left) return add(elem, node.left);
-            else node.left = new Node<>(elem);
+            else node.left = new BSTNode<>(elem);
         } else {
             if (null != node.right) return add(elem, node.right);
-            else node.right = new Node<>(elem);
+            else node.right = new BSTNode<>(elem);
         }
         return true;
     }
@@ -214,9 +269,9 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
      * @date 2021/8/20 16:24
      * @return 原结点
      */
-    private Node<E> insert(E elem, Node<E> node) {
+    private BSTNode<E> insert(E elem, BSTNode<E> node) {
         if (null == node)
-            return new Node<>(elem);
+            return new BSTNode<>(elem);
         else if (elem.compareTo(node.data) == 0)
             return node;
         else if (elem.compareTo(node.data) < 0)
@@ -243,7 +298,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
     public boolean remove(E elem) {
         if (null == elem || null == this.root) return false;
         // new一个结点作为新结点，屏蔽掉删除结点是否是根结点的差异
-        Node<E> extendedRoot = new Node<>(null);
+        BSTNode<E> extendedRoot = new BSTNode<>(null);
         extendedRoot.left = this.root;
 
         Wrapper<E> target = new Wrapper<>(this.root);
@@ -251,11 +306,11 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
         // 未找到删除结点
         if (!get(elem, target, parent)) return false;
         // 删除结点
-        Node<E> deletedNode = target.node;
+        BSTNode<E> deletedNode = target.node;
         // 删除节点的双亲
-        Node<E> parentNode = parent.node;
+        BSTNode<E> parentNode = parent.node;
         // 删除节点的继任
-        Node<E> successor;
+        BSTNode<E> successor;
         if (deletedNode.left == null) { // 删除结点无左子树
             successor = deletedNode.right;
             deletedNode.right = null;
@@ -268,9 +323,9 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
              * 中序遍历下结点直接前驱是它的左孩子或左孩子的最后一个右孩子
              */
             // 直接前驱
-            Node<E> directPrev = deletedNode.left;
+            BSTNode<E> directPrev = deletedNode.left;
             // 直接前驱的双亲
-            Node<E> directPrevParent = deletedNode;
+            BSTNode<E> directPrevParent = deletedNode;
             while (directPrev.right != null) {
                 directPrevParent = directPrev;
                 directPrev = directPrev.right;
@@ -308,7 +363,7 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
         /*
          * 扩展一个根结点，屏蔽删除根节点的差异
          */
-        Node<E> extendedRoot = new Node<>(null);
+        BSTNode<E> extendedRoot = new BSTNode<>(null);
         extendedRoot.right = this.root;
         /*
          * 寻找待删除结点及它的双亲
@@ -316,28 +371,28 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
         Wrapper<E> parent = new Wrapper<>(extendedRoot);
         Wrapper<E> target = new Wrapper<>(this.root);
         if (!get(elem, target, parent)) return false;
-        Node<E> parentNode = parent.node;
-        Node<E> deletedNode = target.node;
+        BSTNode<E> parentNode = parent.node;
+        BSTNode<E> deletedNode = target.node;
         if (deletedNode.left == null && deletedNode.right == null) { // 叶子结点
             if (parentNode.left == deletedNode) parentNode.left = null;
             else parentNode.right = null;
         } else if (deletedNode.left == null) { // 只有右子树
-            Node<E> rightNode = deletedNode.right;
+            BSTNode<E> rightNode = deletedNode.right;
             deletedNode.data = rightNode.data;
             deletedNode.left = rightNode.left;
             deletedNode.right = rightNode.right;
             rightNode.left = null;
             rightNode.right = null;
         } else if (deletedNode.right == null) { // 只有左子树
-            Node<E> leftNode = deletedNode.left;
+            BSTNode<E> leftNode = deletedNode.left;
             deletedNode.data = leftNode.data;
             deletedNode.left = leftNode.left;
             deletedNode.right = leftNode.right;
             leftNode.left = null;
             leftNode.right = null;
         } else { // 既有左子树又有右子树，找直接后继
-            Node<E> successorParent = deletedNode;
-            Node<E> directSuccessor = deletedNode.right;
+            BSTNode<E> successorParent = deletedNode;
+            BSTNode<E> directSuccessor = deletedNode.right;
             while (directSuccessor.left != null) {
                 successorParent = directSuccessor;
                 directSuccessor = directSuccessor.left;
@@ -356,6 +411,19 @@ public class BinarySortTree<E extends Comparable<E>> extends BinaryTree<E> {
         this.root = extendedRoot.right;
         extendedRoot.right = null;
         return true;
+    }
+
+
+    /**
+     * 按指定顺序遍历二叉搜索树
+     *
+     * @param orderEnum 遍历顺序
+     * @author pujian
+     * @date 2021/9/7 10:39
+     * @return 遍历结果集
+     */
+    public List<E> sequence(OrderEnum orderEnum) {
+        return binaryTreeOrder.sequence(this.root, orderEnum);
     }
 
 }

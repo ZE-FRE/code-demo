@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 /**
  * 二叉树
@@ -13,30 +12,46 @@ import java.util.stream.Collectors;
  * @author pujian
  * @date 2020/5/29 16:49
  */
-public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
+public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
 
-    static class Node<E> {
-        protected E data;
-        protected Node<E> left;
-        protected Node<E> right;
+    static class BitNode<E> implements Node<E> {
+        E data;
+        BitNode<E> left;
+        BitNode<E> right;
 
-        Node(E data) {
+        BitNode(E data) {
             this.data = data;
         }
 
-        E getData() {
+        @Override
+        public E getData() {
             return data;
+        }
+
+        @Override
+        public Node<E> left() {
+            return this.left;
+        }
+
+        @Override
+        public Node<E> right() {
+            return this.right;
         }
     }
 
     /**
+     * 二叉树遍历工具
+     */
+    private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
+
+    /**
      * 根结点
      */
-    protected Node<E> root;
+    protected BitNode<E> root;
 
     public BinaryTree() { }
 
-    public BinaryTree(Node<E> root) {
+    public BinaryTree(BitNode<E> root) {
         this.root = root;
     }
 
@@ -45,9 +60,9 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
             this.root = this.init(bTree.root);
     }
 
-    private Node<E> init(Node<E> node) {
+    private BitNode<E> init(BitNode<E> node) {
         if (null == node) return null;
-        Node<E> newNode = new Node<>(node.data);
+        BitNode<E> newNode = new BitNode<>(node.data);
         newNode.left = init(node.left);
         newNode.right = init(node.right);
         return newNode;
@@ -69,10 +84,10 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
             return 0;
 
         int depth = 0;
-        Queue<Node<E>> currentLayer = new LinkedList<>();
+        Queue<BitNode<E>> currentLayer = new LinkedList<>();
         currentLayer.add(this.root);
-        Queue<Node<E>> nextLayer = new LinkedList<>();
-        Node<E> node;
+        Queue<BitNode<E>> nextLayer = new LinkedList<>();
+        BitNode<E> node;
         while (null != (node = currentLayer.poll())) {
             if (null != node.left)
                 nextLayer.offer(node.left);
@@ -81,7 +96,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
             if (currentLayer.isEmpty()) {
                 depth++;
                 // swap
-                Queue<Node<E>> temp = currentLayer;
+                Queue<BitNode<E>> temp = currentLayer;
                 currentLayer = nextLayer;
                 nextLayer = temp;
             }
@@ -90,18 +105,18 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     @Override
-    public Node<E> root() {
+    public BitNode<E> root() {
         return this.root;
     }
 
     @Override
-    public Node<E> parent(Node<E> node) {
+    public BitNode<E> parent(BitNode<E> node) {
         if (null == node || isEmpty())
             return null;
-        List<Node<E>> sequenceList = new ArrayList<>();
+        List<BitNode<E>> sequenceList = new ArrayList<>();
         sequenceList.add(root);
         for (int i = 0; i < sequenceList.size(); i++) {
-            Node<E> parentNode = sequenceList.get(i);
+            BitNode<E> parentNode = sequenceList.get(i);
             if (node.equals(parentNode.left) || node.equals(parentNode.right))
                 return parentNode;
             if (null != parentNode.left)
@@ -113,18 +128,18 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     @Override
-    public Node<E> leftChild(Node<E> node) {
+    public BitNode<E> leftChild(BitNode<E> node) {
         return null == node ? null : node.left;
     }
 
     @Override
-    public Node<E> rightSibling(Node<E> node) {
-        Node<E> parent = parent(node);
+    public BitNode<E> rightSibling(BitNode<E> node) {
+        BitNode<E> parent = parent(node);
         return null == parent ? null : parent.right == node ? null : parent.right;
     }
 
     @Override
-    public void insertChild(Node<E> node, int i, Tree<Node<E>> insertedTree) {
+    public void insertChild(BitNode<E> node, int i, Tree<BitNode<E>> insertedTree) {
         if (null == node || isEmpty())
             return;
         if (i <= 0 || i > degree(node) + 1)
@@ -143,12 +158,12 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
     }
 
     @Override
-    public Tree<Node<E>> deleteChild(Node<E> node, int i) {
+    public Tree<BitNode<E>> deleteChild(BitNode<E> node, int i) {
         if (null == node || isEmpty())
             return null;
         if (i <= 0 || i > degree(node))
             throw new IllegalArgumentException("0 < i <= " + degree(node));
-        Node<E> deletedTree;
+        BitNode<E> deletedTree;
         boolean deleteLeft = i == 1 && null != node.left;
         if (deleteLeft) {
             deletedTree = node.left;
@@ -162,12 +177,11 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
 
     @Override
     public int nodeCount() {
-        List<Node<E>> nodes = sequenceOrder();
-        return nodes.size();
+        return binaryTreeOrder.order(this.root, OrderEnum.SEQUENCE).size();
     }
 
     @Override
-    public int degree(Node<E> node) {
+    public int degree(BitNode<E> node) {
         int degree = 0;
         if (null != node) {
             if (null != node.left)
@@ -178,21 +192,21 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
         return degree;
     }
 
-    private void clear(Node<E> node) {
+    private void clear(BitNode<E> node) {
         if (null == node) return;
         clear(node.left);
         clear(node.right);
         node.left = node.right = null;
     }
 
-    public Node<E> add(E elem, Node<E> node, boolean addLeft) {
+    public BitNode<E> add(E elem, BitNode<E> node, boolean addLeft) {
         if (null == node) {
-            this.root = new Node<>(elem);
+            this.root = new BitNode<>(elem);
             return this.root;
         }
 
-        Node<E> newNode = new Node<>(elem);
-        Node<E> temp;
+        BitNode<E> newNode = new BitNode<>(elem);
+        BitNode<E> temp;
         if (addLeft) {
             temp = node.left;
             node.left = newNode;
@@ -205,125 +219,41 @@ public class BinaryTree<E> implements Tree<BinaryTree.Node<E>> {
         return newNode;
     }
 
-    public Node<E> get(E elem) {
+    public BitNode<E> get(E elem) {
         if (null == elem) return null;
         return this.get(elem, root);
     }
 
-    private Node<E> get(E elem, Node<E> node) {
+    private BitNode<E> get(E elem, BitNode<E> node) {
         if (null == node) return null;
         if (elem.equals(node.data)) return node;
-        Node<E> result = get(elem, node.left);
+        BitNode<E> result = get(elem, node.left);
         if (null != result) return result;
         return get(elem, node.right);
     }
 
     /**
-     * 根据指定顺序遍历二叉树，得到元素集合
+     * 按指定顺序遍历二叉树，得到结点集合
      *
-     * @param order 遍历顺序 {@link cn.zefre.tree.bitree.OrderEnum}
+     * @param orderEnum 遍历顺序
      * @author pujian
-     * @date 2021/7/21 14:42
-     * @return 遍历结果元素集合
+     * @date 2021/9/7 10:51
+     * @return 遍历结点集合
      */
-    public List<E> obtainByOrder(OrderEnum order) {
-        List<Node<E>> list = order(order);
-        return list.stream().map(Node::getData).collect(Collectors.toList());
+    public List<Node<E>> order(OrderEnum orderEnum) {
+        return binaryTreeOrder.order(this.root, orderEnum);
     }
 
     /**
-     * 根据指定顺序遍历二叉树，得到结点集合
+     * 按指定顺序遍历二叉树
      *
-     * @param order 遍历顺序 {@link cn.zefre.tree.bitree.OrderEnum}
+     * @param orderEnum 遍历顺序
      * @author pujian
-     * @date 2021/7/21 10:41
-     * @return 遍历结果结点集合
+     * @date 2021/9/7 10:51
+     * @return 遍历结果集
      */
-    public List<Node<E>> order(OrderEnum order) {
-        List<Node<E>> orderList = new ArrayList<>();
-        switch (order) {
-            case PRE_ORDER:
-                preOrder(root, orderList);
-                break;
-            case IN_ORDER:
-                inOrder(root, orderList);
-                break;
-            case POST_ORDER:
-                postOrder(root, orderList);
-                break;
-            case SEQUENCE:
-                orderList = sequenceOrder();
-            default:
-                break;
-        }
-        return orderList;
-    }
-
-    /**
-     * 先序遍历二叉树
-     *
-     * @param node 遍历结点
-     * @param preOrderList 遍历结果集合
-     * @author pujian
-     * @date 2021/7/21 10:28
-     */
-    private void preOrder(Node<E> node, List<Node<E>> preOrderList) {
-        if (null == node) return;
-        preOrderList.add(node);
-        preOrder(node.left, preOrderList);
-        preOrder(node.right, preOrderList);
-    }
-
-    /**
-     * 中序遍历二叉树
-     *
-     * @param node 遍历结点
-     * @param preOrderList 遍历结果集合
-     * @author pujian
-     * @date 2021/7/21 10:31
-     */
-    private void inOrder(Node<E> node, List<Node<E>> preOrderList) {
-        if (null == node) return;
-        inOrder(node.left, preOrderList);
-        preOrderList.add(node);
-        inOrder(node.right, preOrderList);
-    }
-
-    /**
-     * 后序遍历二叉树
-     *
-     * @param node 遍历结点
-     * @param preOrderList 遍历结果集合
-     * @author pujian
-     * @date 2021/7/21 10:31
-     */
-    private void postOrder(Node<E> node, List<Node<E>> preOrderList) {
-        if (null == node) return;
-        postOrder(node.left, preOrderList);
-        postOrder(node.right, preOrderList);
-        preOrderList.add(node);
-    }
-
-    /**
-     * 层序遍历二叉树
-     *
-     * @author pujian
-     * @date 2021/7/27 10:25
-     * @return 层序遍历结果集
-     */
-    private List<Node<E>> sequenceOrder() {
-        List<Node<E>> sequenceList = new ArrayList<>();
-        if (null != this.root) {
-            sequenceList.add(this.root);
-        }
-        for (int i = 0; i < sequenceList.size(); i++) {
-            Node<E> node = sequenceList.get(i);
-            if (null != node.left)
-                sequenceList.add(node.left);
-            if (null != node.right)
-                sequenceList.add(node.right);
-        }
-        return sequenceList;
+    public List<E> sequence(OrderEnum orderEnum) {
+        return binaryTreeOrder.sequence(this.root, orderEnum);
     }
 
 }

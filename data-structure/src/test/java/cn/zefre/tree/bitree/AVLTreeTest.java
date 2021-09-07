@@ -18,7 +18,7 @@ public class AVLTreeTest {
         avlTree.add(30);
         avlTree.add(22);
         avlTree.add(18);
-        Assert.assertEquals(Arrays.asList(22,18,30), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(22,18,30), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第一次旋转(LL型，右单旋)
          *       30                 22
@@ -30,7 +30,7 @@ public class AVLTreeTest {
         avlTree.add(16);
         avlTree.add(20);
         avlTree.add(8);
-        Assert.assertEquals(Arrays.asList(18,16,22,8,20,30), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,16,22,8,20,30), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第二次旋转(LL型，右单旋)
          *           22                      18
@@ -41,7 +41,7 @@ public class AVLTreeTest {
 
 
         avlTree.add(12);
-        Assert.assertEquals(Arrays.asList(18,12,22,8,16,20,30), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,12,22,8,16,20,30), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第三次旋转(LR型，先左旋，再右旋)
          *         18                         18                         18
@@ -54,7 +54,7 @@ public class AVLTreeTest {
         avlTree.add(3);
         avlTree.add(10);
         avlTree.add(9);
-        Assert.assertEquals(Arrays.asList(18,10,22,8,12,20,30,3,9,16), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,22,8,12,20,30,3,9,16), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第四次旋转(LR型，先左旋，再右旋)
          *               18                                 18                                  18
@@ -68,7 +68,7 @@ public class AVLTreeTest {
 
         avlTree.add(45);
         avlTree.add(60);
-        Assert.assertEquals(Arrays.asList(18,10,22,8,12,20,45,3,9,16,30,60), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,22,8,12,20,45,3,9,16,30,60), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第五次旋转(RR型，左单旋)
          *                  18                                             18
@@ -80,7 +80,7 @@ public class AVLTreeTest {
 
 
         avlTree.add(50);
-        Assert.assertEquals(Arrays.asList(18,10,45,8,12,22,60,3,9,16,20,30,50), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,45,8,12,22,60,3,9,16,20,30,50), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第六次旋转(RR型，左单旋)
          *                  18                                              18
@@ -94,7 +94,7 @@ public class AVLTreeTest {
         avlTree.add(25);
         avlTree.add(35);
         avlTree.add(28);
-        Assert.assertEquals(Arrays.asList(18,10,45,8,12,25,60,3,9,16,22,30,50,20,28,35), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,45,8,12,25,60,3,9,16,22,30,50,20,28,35), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第七次旋转(RL型，先右旋，再左旋)
          *                     18                                               18                                                 18
@@ -107,7 +107,7 @@ public class AVLTreeTest {
 
 
         avlTree.add(14);
-        Assert.assertEquals(Arrays.asList(18,10,45,8,14,25,60,3,9,12,16,22,30,50,20,28,35), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,45,8,14,25,60,3,9,12,16,22,30,50,20,28,35), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 第八次旋转(RL型，先右旋，再左旋)
          *                      18                                              18                                                 18
@@ -131,9 +131,9 @@ public class AVLTreeTest {
          */
 
         List<Integer> inOrderList = Arrays.asList(3,8,9,10,12,14,16,18,20,22,25,27,28,30,35,45,50,60);
-        Assert.assertEquals(inOrderList, avlTree.inOrder());
+        Assert.assertEquals(inOrderList, avlTree.sequence(OrderEnum.IN_ORDER));
         List<Integer> sequenceOrderList = Arrays.asList(18,10,30,8,14,25,45,3,9,12,16,22,28,35,60,20,27,50);
-        Assert.assertEquals(sequenceOrderList, avlTree.sequenceOrder());
+        Assert.assertEquals(sequenceOrderList, avlTree.sequence(OrderEnum.SEQUENCE));
     }
 
 
@@ -144,7 +144,7 @@ public class AVLTreeTest {
             avlTree.add(num);
         }
 
-        AVLTree.Node<Integer> node = avlTree.get(8);
+        AVLTree.AVLNode<Integer> node = avlTree.get(8);
         Assert.assertEquals(Integer.valueOf(8), node.data);
         Assert.assertEquals(Integer.valueOf(3), node.left.data);
         Assert.assertEquals(Integer.valueOf(9), node.right.data);
@@ -157,7 +157,7 @@ public class AVLTreeTest {
         // 测试删除avl树只有一个结点的情况
         avlTree.add(100);
         avlTree.remove(100);
-        Assert.assertTrue(avlTree.sequenceOrder().isEmpty());
+        Assert.assertTrue(avlTree.sequence(OrderEnum.SEQUENCE).isEmpty());
 
         /*
          *      100
@@ -166,7 +166,7 @@ public class AVLTreeTest {
         avlTree.add(100);
         avlTree.add(80);
         avlTree.remove(100);
-        Assert.assertEquals(Collections.singletonList(80), avlTree.sequenceOrder());
+        Assert.assertEquals(Collections.singletonList(80), avlTree.sequence(OrderEnum.SEQUENCE));
         avlTree.remove(80);
 
         /*
@@ -176,7 +176,7 @@ public class AVLTreeTest {
         avlTree.add(100);
         avlTree.add(120);
         avlTree.remove(100);
-        Assert.assertEquals(Collections.singletonList(120), avlTree.sequenceOrder());
+        Assert.assertEquals(Collections.singletonList(120), avlTree.sequence(OrderEnum.SEQUENCE));
         avlTree.remove(120);
 
         /*
@@ -187,7 +187,7 @@ public class AVLTreeTest {
         avlTree.add(80);
         avlTree.add(120);
         avlTree.remove(100);
-        Assert.assertEquals(Arrays.asList(120, 80), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(120, 80), avlTree.sequence(OrderEnum.SEQUENCE));
         avlTree.remove(120);
         avlTree.remove(80);
 
@@ -209,7 +209,7 @@ public class AVLTreeTest {
 
         // 测试删除叶子结点
         avlTree.remove(35);
-        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,28,45,60,20,27), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,28,45,60,20,27), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 删除后的avl树
          *                    18
@@ -222,7 +222,7 @@ public class AVLTreeTest {
 
         // 测试删除只有左子树结点
         avlTree.remove(28);
-        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,27,45,60,20), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,25,50,3,9,12,16,22,27,45,60,20), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 删除后的avl树
          *                    18
@@ -234,7 +234,7 @@ public class AVLTreeTest {
 
         // 测试删除结点左右子树都存在，且直接后继是它的右结点
         avlTree.remove(25);
-        Assert.assertEquals(Arrays.asList(18,10,30,8,14,22,50,3,9,12,16,20,27,45,60), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(18,10,30,8,14,22,50,3,9,12,16,20,27,45,60), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          *                   18                                                         18
          *        10                      30                                10                      30
@@ -245,7 +245,7 @@ public class AVLTreeTest {
 
         // 测试删除结点左右子树都存在，且直接后继不是它的右结点
         avlTree.remove(18);
-        Assert.assertEquals(Arrays.asList(20,10,30,8,14,22,50,3,9,12,16,27,45,60), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(20,10,30,8,14,22,50,3,9,12,16,27,45,60), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 删除后的avl树
          *                   20
@@ -257,7 +257,7 @@ public class AVLTreeTest {
 
         // 测试删除结点只有右子树
         avlTree.remove(22);
-        Assert.assertEquals(Arrays.asList(20,10,30,8,14,27,50,3,9,12,16,45,60), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(20,10,30,8,14,27,50,3,9,12,16,45,60), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 删除后的avl树
          *                    20
@@ -268,7 +268,7 @@ public class AVLTreeTest {
          */
 
         avlTree.remove(27);
-        Assert.assertEquals(Arrays.asList(20,10,50,8,14,30,60,3,9,12,16,45), avlTree.sequenceOrder());
+        Assert.assertEquals(Arrays.asList(20,10,50,8,14,30,60,3,9,12,16,45), avlTree.sequence(OrderEnum.SEQUENCE));
         /*
          * 删除后的avl树
          *                    20                                              20
