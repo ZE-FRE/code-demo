@@ -35,7 +35,7 @@ public class RedBlackTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/9/6 13:47
      */
-    static class RBNode<E extends Comparable<E>> implements Node<E> {
+    static class RBNode<E> implements Node<E> {
 
         /**
          * 结点值
@@ -95,9 +95,48 @@ public class RedBlackTree<E extends Comparable<E>> {
      */
     private RBNode<E> root;
 
+    /**
+     * 红黑树查找结点
+     *
+     * @param elem 查找元素
+     * @author pujian
+     * @date 2021/9/10 10:16
+     * @return 元素存在返回对应结点，不存在返回null
+     */
+    public RBNode<E> get(E elem) {
+        if (null == elem || null == this.root) return null;
+        return get(elem, this.root);
+    }
+
+    /**
+     * 从指定结点开始查找结点
+     *
+     * @param elem 查找元素 @NotNull
+     * @param startNode 查找起始结点 @NotNull
+     * @author pujian
+     * @date 2021/9/10 13:19
+     * @return 元素存在返回对应结点，不存在返回null
+     */
+    private RBNode<E> get(E elem, RBNode<E> startNode) {
+        RBNode<E> target = startNode;
+        while (null != target) {
+            if (elem.compareTo(target.data) == 0)
+                return target;
+            else if (elem.compareTo(target.data) < 0)
+                target = target.left;
+            else
+                target = target.right;
+        }
+        return null;
+    }
+
 
     /**
      * 红黑树插入新节点，新增结点默认为红色
+     * 2-3-4树插入结点过程：
+     * 在叶子结点插入，若插入后节点数等于4，则第二个结点向上分裂，若向上分裂导致上层结点等于4，则继续向上分裂
+     *
+     * 根据2-3-4树的插入情况，推导出红黑树插入的情况：
      * 1、红黑树为空，则新增一个黑色结点为根节点
      * 2、插入结点的父节点是黑色，则插入后不需要调整(变色、旋转)，直接返回
      * 3、插入结点的父节点是红色(则祖父结点一定是黑色)：
@@ -283,6 +322,89 @@ public class RedBlackTree<E extends Comparable<E>> {
         }
         setParent(left, pivotParent);
         return left;
+    }
+
+
+    /**
+     * 红黑树删除
+     * 删除操作删除的结点一定是2-3-4树的叶子结点，对应红黑树的倒数第一、二层
+     *
+     * @param elem 删除元素
+     * @author pujian
+     * @date 2021/9/10 10:18
+     * @return 成功删除返回true，元素不存在返回false
+     */
+    public boolean remove(E elem) {
+        // 查找待删除结点
+        RBNode<E> target = get(elem);
+        // 元素不存在返回false
+        if (null == target) return false;
+        // 删除结点
+        delete(target);
+        return true;
+    }
+
+    /**
+     * 删除结点
+     *
+     * @param deletedNode 删除结点 @NotNull
+     * @author pujian
+     * @date 2021/9/10 13:22
+     */
+    private void delete(RBNode<E> deletedNode) {
+        if (this.root == deletedNode) this.root = null;
+        // 叶子结点
+        if (null == deletedNode.left && null == deletedNode.right) {
+            // assert parent is not null
+            RBNode<E> parent = deletedNode.parent;
+            if (colorOf(deletedNode) == RED) { // 红色结点，直接删除
+                setLeft(parent, null);
+                setRight(parent, null);
+                setParent(deletedNode, null);
+            }
+            // 删除结点是黑色结点
+            else {
+
+            }
+        }
+        // 只有右节点，则右节点一定是红色，删除结点一定是黑色，用右节点的值替换当前结点的值，删除右结点
+        else if (null == deletedNode.left) {
+            // assert target's color is BLACK and right'color is RED
+            RBNode<E> right = deletedNode.right;
+            deletedNode.data = right.data;
+            setRight(deletedNode, null);
+            setParent(right, null);
+        }
+        // 只有左节点，则左节点一定是红色，删除结点一定是黑色，用左节点的值替换当前结点的值，删除左结点
+        else if (null == deletedNode.right) {
+            // assert target's color is BLACK and left'color is RED
+            RBNode<E> left = deletedNode.left;
+            deletedNode.data = left.data;
+            setLeft(deletedNode, null);
+            setParent(left, null);
+        }
+        // 左、右结点都存在，则删除直接后继
+        else {
+            RBNode<E> successor = successor(deletedNode);
+            deletedNode.data = successor.data;
+            // 删除直接后继
+            delete(successor);
+        }
+    }
+
+    /**
+     * 获取结点的直接后继
+     *
+     * @param node 结点 @NotNull
+     * @author pujian
+     * @date 2021/9/10 13:14
+     * @return 结点直接后继
+     */
+    private RBNode<E> successor(RBNode<E> node) {
+        RBNode<E> successor = node.right;
+        while (successor.left != null)
+            successor = successor.left;
+        return successor;
     }
 
 
