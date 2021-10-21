@@ -15,6 +15,8 @@
         <module>leetcode-algorithm</module>
         <module>design-pattern</module>
         <module>common</module>
+        <module>non-spring-demo</module>
+        <module>spring-demo</module>
     </modules>
 
     <dependencies>
@@ -44,7 +46,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.10</version>
+                <version>4.12</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
