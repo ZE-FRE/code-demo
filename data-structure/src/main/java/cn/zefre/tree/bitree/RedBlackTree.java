@@ -104,32 +104,19 @@ public class RedBlackTree<E extends Comparable<E>> {
      * @return 元素存在返回对应结点，不存在返回null
      */
     public RBNode<E> get(E elem) {
-        if (null == elem || null == this.root) return null;
-        return get(elem, this.root);
-    }
-
-    /**
-     * 从指定结点开始查找结点
-     *
-     * @param elem 查找元素 @NotNull
-     * @param startNode 查找起始结点 @NotNull
-     * @author pujian
-     * @date 2021/9/10 13:19
-     * @return 元素存在返回对应结点，不存在返回null
-     */
-    private RBNode<E> get(E elem, RBNode<E> startNode) {
-        RBNode<E> target = startNode;
+        if (null == elem) return null;
+        RBNode<E> target = this.root;
         while (null != target) {
-            if (elem.compareTo(target.data) == 0)
-                return target;
-            else if (elem.compareTo(target.data) < 0)
+            int compare = elem.compareTo(target.data);
+            if (compare < 0)
                 target = target.left;
-            else
+            if (compare > 0)
                 target = target.right;
+            else
+                return target;
         }
         return null;
     }
-
 
     /**
      * 红黑树插入新节点，新增结点默认为红色
@@ -141,12 +128,12 @@ public class RedBlackTree<E extends Comparable<E>> {
      * 2、插入结点的父节点是黑色，则插入后不需要调整(变色、旋转)，直接返回
      * 3、插入结点的父节点是红色(则祖父结点一定是黑色)：
      *    3.1 叔叔结点也是红色，则只需变色，不用旋转
-     *    3.2 叔叔结点是黑色，分四种情况：
+     *    3.2 叔叔结点是黑色(可能是null结点，null结点也是黑色)，分四种情况：
      *             LL型(右单旋)              LR型(先左旋再右旋)         RL型(先右旋再左旋)          RR型(左单旋)
      *           grandpa(黑)              grandpa(黑)               grandpa(黑)               grandpa(黑)
-     *          /       \                /       \                 /       \                 /       \
+     *          //      \\               //       \\               //       \\              //       \\
      *      parent(红)  uncle(黑)     parent(红)  uncle(黑)      uncle(黑)   parent(红)    uncle(黑)  parent(红)
-     *      /                           \                                    /                          \
+     *       //                          \\                                 //                          \\
      *   newNode(红)                  newNode(红)                         newNode(红)                 newNode(红)
      *
      *  右旋，parent变黑，grandpa变红       左旋变为第一种情况           右旋变为第四种情况         左旋，parent变黑，grandpa变红
@@ -164,19 +151,18 @@ public class RedBlackTree<E extends Comparable<E>> {
         /*
          * 定位插入结点的双亲节点
          */
-        RBNode<E> parent = null;
+        RBNode<E> parent;
         RBNode<E> node = this.root;
-        while (node != null) {
-            if (elem.compareTo(node.data) == 0)
-                return false;
-            else if (elem.compareTo(node.data) < 0) {
-                parent = node;
+        do {
+            parent = node;
+            int compare = elem.compareTo(node.data);
+            if (compare < 0)
                 node = node.left;
-            } else {
-                parent = node;
+             else if (compare > 0)
                 node = node.right;
-            }
-        }
+             else
+                 return false;
+        } while (node != null);
         /*
          * 插入结点
          */
@@ -186,59 +172,50 @@ public class RedBlackTree<E extends Comparable<E>> {
             parent.left = newNode;
         else
             parent.right = newNode;
-
         // 调整
-        adjust(newNode);
+        adjustAfterInsertion(newNode);
         return true;
     }
 
     /**
-     * 调整红黑树
+     * 插入后调整红黑树
      *
      * @param node 调整节点
      * @author pujian
      * @date 2021/9/8 10:17
      */
-    private void adjust(RBNode<E> node) {
-        while (node.color == RED) {
-            if (this.root == node) {
-                this.root.color = BLACK;
-                break;
-            }
+    private void adjustAfterInsertion(RBNode<E> node) {
+        while (node.parent.color == RED) {
             RBNode<E> parent = node.parent;
-            if (parent.color == BLACK)
-                break;
-            // parent's color is RED
-            // assert grandpa is not null and the color is BLACK
             RBNode<E> grandpa = parent.parent;
-            RBNode<E> uncle = grandpa.left == parent ? grandpa.right : grandpa.left;
-            if (colorOf(uncle) == RED) {
-                // 只需变色
+            RBNode<E> uncle = parent == grandpa.left ? grandpa.right : grandpa.left;
+            if (colorOf(uncle) == RED) { // parent和uncle都是红色，只需变色(递归)
                 grandpa.color = RED;
                 parent.color = BLACK;
-                // assert uncle is not null
                 uncle.color = BLACK;
                 node = grandpa;
-            } else { // uncle's color is BLACK
-                // 子树旋转后的根节点
-                RBNode<E> rootAfterRotating;
-                if (grandpa.left == parent) {
-                    if (parent.right == node)  // LR型，先左旋变为LL型
+                if (node == root) {
+                    root.color = BLACK;
+                    break;
+                }
+            } else { // parent是红色，uncle是黑色，需要变色、旋转。当发生一次旋转后红黑树就平衡了
+                if (parent == grandpa.left) {
+                    if (node == parent.right) {  // LR型，先左旋变为LL型
+                        node = parent;
                         leftRotate(parent);
-                    rootAfterRotating = rightRotate(grandpa);
+                    }
+                    rightRotate(grandpa);
                 } else {
-                    if (parent.left == node) { // RL型，先右旋变为RR型
+                    if (node == parent.left) { // RL型，先右旋变为RR型
+                        node = parent;
                         rightRotate(parent);
                     }
-                    rootAfterRotating = leftRotate(grandpa);
+                    leftRotate(grandpa);
                 }
-                // 变色
-                rootAfterRotating.color = BLACK;
-                rootAfterRotating.left.color = RED;
-                rootAfterRotating.right.color = RED;
-                node = rootAfterRotating;
-                if (node.parent == null)
-                    this.root = node;
+                // 变色(父变黑，祖父变红)
+                // assert null != node.parent
+                node.parent.color = BLACK;
+                grandpa.color = RED;
             }
         }
     }
@@ -268,29 +245,27 @@ public class RedBlackTree<E extends Comparable<E>> {
      *            pivot                              right
      *          //    \\                           //     \\
      *       left     right       ---->          pivot    node
-     *                  \\                       //
-     *                  node                   left
+     *               //  \\                     //  \\
+     *              ?    node                 left   ?
      *
      * @param pivot 旋转支点
      * @author pujian
      * @date 2021/9/8 13:51
-     * @return 旋转后的根节点
      */
-    private RBNode<E> leftRotate(RBNode<E> pivot) {
-        RBNode<E> pivotParent = pivot.parent;
+    private void leftRotate(RBNode<E> pivot) {
         RBNode<E> right = pivot.right;
-        setRight(pivot, right.left);
-        setParent(right.left, pivot);
-        setLeft(right, pivot);
-        setParent(pivot, right);
-        if (pivotParent != null) {
-            if (pivotParent.left == pivot)
-                setLeft(pivotParent, right);
-            else
-                setRight(pivotParent, right);
-        }
-        setParent(right, pivotParent);
-        return right;
+        pivot.right = right.left;
+        if (null != pivot.right)
+            pivot.right.parent = pivot;
+        if (null == pivot.parent) // pivot是根节点
+            this.root = right;
+        else if (pivot == pivot.parent.left)
+            pivot.parent.left = right;
+        else
+            pivot.parent.right = right;
+        right.parent = pivot.parent;
+        right.left = pivot;
+        pivot.parent = right;
     }
 
     /**
@@ -299,35 +274,36 @@ public class RedBlackTree<E extends Comparable<E>> {
      *            pivot                          left
      *          //    \\                       //    \\
      *       left     right    ---->        node     pivot
-     *      //                                         \\
-     *   node                                          right
+     *      //  \\                                  //  \\
+     *   node    ?                                 ?    right
      *
      * @param pivot 旋转支点
      * @author pujian
      * @date 2021/9/8 13:52
-     * @return 旋转后的根节点
      */
-    private RBNode<E> rightRotate(RBNode<E> pivot) {
-        RBNode<E> pivotParent = pivot.parent;
+    private void rightRotate(RBNode<E> pivot) {
         RBNode<E> left = pivot.left;
-        setLeft(pivot, left.right);
-        setParent(left.right, pivot);
-        setRight(left, pivot);
-        setParent(pivot, left);
-        if (pivotParent != null) {
-            if (pivotParent.left == pivot)
-                setLeft(pivotParent, left);
-            else
-                setRight(pivotParent, left);
-        }
-        setParent(left, pivotParent);
-        return left;
+        pivot.left = left.right;
+        if (null != pivot.left)
+            pivot.left.parent = pivot;
+        if (null == pivot.parent) // pivot是根节点
+            this.root = left;
+        else if (pivot == pivot.parent.left)
+            pivot.parent.left = left;
+        else
+            pivot.parent.right = left;
+        left.parent = pivot.parent;
+        left.right = pivot;
+        pivot.parent = left;
     }
 
 
     /**
      * 红黑树删除
-     * 删除操作删除的结点一定是2-3-4树的叶子结点，对应红黑树的倒数第一、二层
+     * 在2-3-4树中，删除节点最终都转换为删除叶子节点(最后一层，对应红黑树的倒数第一、二层)
+     * 在红黑树中，删除结点最终都转换为删除叶子结点(因为二叉排序树的性质)
+     *
+     *
      *
      * @param elem 删除元素
      * @author pujian
@@ -393,7 +369,7 @@ public class RedBlackTree<E extends Comparable<E>> {
     }
 
     /**
-     * 获取结点的直接后继
+     * 获取中序遍历下结点的直接后继
      *
      * @param node 结点 @NotNull
      * @author pujian
@@ -401,10 +377,22 @@ public class RedBlackTree<E extends Comparable<E>> {
      * @return 结点直接后继
      */
     private RBNode<E> successor(RBNode<E> node) {
-        RBNode<E> successor = node.right;
-        while (successor.left != null)
-            successor = successor.left;
-        return successor;
+        if (null == node)
+            return null;
+        else if (null != node.right) { // 结点右子树存在，则直接后继在右子树上
+            RBNode<E> successor = node.right;
+            while (successor.left != null)
+                successor = successor.left;
+            return successor;
+        } else { // 结点右子树不存在，则直接后继是祖先结点，向上查找(找直接前驱的逆过程)
+            RBNode<E> parent = node.parent;
+            RBNode<E> successor = node;
+            while (parent != null && successor == parent.right) {
+                successor = parent;
+                parent = parent.parent;
+            }
+            return successor;
+        }
     }
 
 
