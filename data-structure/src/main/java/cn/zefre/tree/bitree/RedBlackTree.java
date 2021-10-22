@@ -10,10 +10,10 @@ import java.util.List;
  *
  * 红黑树五大性质：
  * 1、结点是黑色或红色
- * 2、根节点是黑色
- * 3、叶子节点(nil、null结点)是黑色
- * 4、红色节点的两个子节点是黑色(即红色节点的双亲不能是红色结点)
- * 5、任一节点到它每一个叶子结点的路径包含相同数量的黑色结点(即红黑树的黑色平衡)
+ * 2、根结点是黑色
+ * 3、叶子结点(nil、null结点)是黑色
+ * 4、红色结点的两个子结点是黑色(即红色结点的双亲不能是红色结点)
+ * 5、任一结点到它每一个叶子结点的路径包含相同数量的黑色结点(即红黑树的黑色平衡)
  *
  * @author pujian
  * @date 2021/9/6 13:31
@@ -91,7 +91,7 @@ public class RedBlackTree<E extends Comparable<E>> {
     private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
 
     /**
-     * 红黑树根节点
+     * 红黑树根结点
      */
     private RBNode<E> root;
 
@@ -119,24 +119,16 @@ public class RedBlackTree<E extends Comparable<E>> {
     }
 
     /**
-     * 红黑树插入新节点，新增结点默认为红色
+     * 红黑树插入新结点，新增结点默认为红色
      * 2-3-4树插入结点过程：
-     * 在叶子结点插入，若插入后节点数等于4，则第二个结点向上分裂，若向上分裂导致上层结点等于4，则继续向上分裂
+     * 在叶子结点插入，若插入后结点数等于4，则第二个结点向上分裂，若向上分裂导致上层结点等于4，则继续向上分裂
      *
-     * 根据2-3-4树的插入情况，推导出红黑树插入的情况：
-     * 1、红黑树为空，则新增一个黑色结点为根节点
-     * 2、插入结点的父节点是黑色，则插入后不需要调整(变色、旋转)，直接返回
-     * 3、插入结点的父节点是红色(则祖父结点一定是黑色)：
+     * 根据2-3-4树的插入，推导出红黑树插入的情况：
+     * 1、红黑树为空，则新增一个黑色结点为根结点
+     * 2、插入结点的父结点是黑色，则插入后不需要调整(变色、旋转)，直接返回
+     * 3、插入结点的父结点是红色(则祖父结点一定是黑色)：
      *    3.1 叔叔结点也是红色，则只需变色，不用旋转
-     *    3.2 叔叔结点是黑色(可能是null结点，null结点也是黑色)，分四种情况：
-     *             LL型(右单旋)              LR型(先左旋再右旋)         RL型(先右旋再左旋)          RR型(左单旋)
-     *           grandpa(黑)              grandpa(黑)               grandpa(黑)               grandpa(黑)
-     *          //      \\               //       \\               //       \\              //       \\
-     *      parent(红)  uncle(黑)     parent(红)  uncle(黑)      uncle(黑)   parent(红)    uncle(黑)  parent(红)
-     *       //                          \\                                 //                          \\
-     *   newNode(红)                  newNode(红)                         newNode(红)                 newNode(红)
-     *
-     *  右旋，parent变黑，grandpa变红       左旋变为第一种情况           右旋变为第四种情况         左旋，parent变黑，grandpa变红
+     *    3.2 叔叔结点是黑色(可能是null结点，null结点也是黑色)，分四种情况：LL型、LR型、RL型、RR型
      *
      * @param elem 插入元素
      * @author pujian
@@ -149,7 +141,7 @@ public class RedBlackTree<E extends Comparable<E>> {
             this.root = new RBNode<>(elem, BLACK);
         }
         /*
-         * 定位插入结点的双亲节点
+         * 定位插入结点的双亲结点
          */
         RBNode<E> parent;
         RBNode<E> node = this.root;
@@ -179,8 +171,38 @@ public class RedBlackTree<E extends Comparable<E>> {
 
     /**
      * 插入后调整红黑树
+     * 需要调整的情况：
+     * 1、 叔叔结点也是红色，则只需变色，不用旋转
+     * 2、 叔叔结点是黑色(可能是null结点，null结点也是黑色)，分四种情况：
+     *                                                       LL型
+     *           grandpa(黑)                      parent(红)                                         parent(黑)
+     *          //      \\          右旋         //      \\            parent变黑，grandpa变红        //      \\
+     *      parent(红)  uncle(黑)   ---->   newNode(红)  grandpa(黑)          ---->             newNode(红)  grandpa(红)
+     *       //                                            \\                                                 \\
+     *   newNode(红)                                      uncle(黑)                                            uncle(黑)
      *
-     * @param node 调整节点
+     *                                                       LR型
+     *           grandpa(黑)                           grandpa(黑)
+     *          //      \\        左旋变为LL型         //      \\
+     *      parent(红)  uncle(黑)    ---->        newNode(红)  uncle(黑)    将操作指针指向parent(红)，重复LL型调整
+     *          \\                                 //
+     *         newNode(红)                    parent(红)
+     *
+     *                                                      RR型
+     *          grandpa(黑)                           parent(红)                                         parent(黑)
+     *         //       \\           左旋           //       \\          parent变黑，grandpa变红         //       \\
+     *      uncle(黑)  parent(红)    ---->      grandpa(黑)  newNode(红)       ---->                grandpa(红)  newNode(红)
+     *                   \\                       //                                                  //
+     *                  newNode(红)            uncle(黑)                                          uncle(黑)
+     *
+     *                                                      RL型
+     *           grandpa(黑)                          grandpa(黑)
+     *          //      \\         右旋变为RR型       //       \\
+     *      uncle(黑)  parent(红)    ---->        uncle(黑)  newNode(红)    将操作指针指向parent(红)，重复RR型调整
+     *                  //                                      \\
+     *               newNode(红)                             parent(红)
+     *
+     * @param node 调整结点
      * @author pujian
      * @date 2021/9/8 10:17
      */
@@ -257,7 +279,7 @@ public class RedBlackTree<E extends Comparable<E>> {
         pivot.right = right.left;
         if (null != pivot.right)
             pivot.right.parent = pivot;
-        if (null == pivot.parent) // pivot是根节点
+        if (null == pivot.parent) // pivot是根结点
             this.root = right;
         else if (pivot == pivot.parent.left)
             pivot.parent.left = right;
@@ -286,7 +308,7 @@ public class RedBlackTree<E extends Comparable<E>> {
         pivot.left = left.right;
         if (null != pivot.left)
             pivot.left.parent = pivot;
-        if (null == pivot.parent) // pivot是根节点
+        if (null == pivot.parent) // pivot是根结点
             this.root = left;
         else if (pivot == pivot.parent.left)
             pivot.parent.left = left;
@@ -300,7 +322,7 @@ public class RedBlackTree<E extends Comparable<E>> {
 
     /**
      * 红黑树删除
-     * 在2-3-4树中，删除节点最终都转换为删除叶子节点(最后一层，对应红黑树的倒数第一、二层)
+     * 在2-3-4树中，删除结点最终都转换为删除叶子结点(最后一层，对应红黑树的倒数第一、二层)
      * 在红黑树中，删除结点最终都转换为删除叶子结点(因为二叉排序树的性质)
      *
      *
@@ -316,56 +338,49 @@ public class RedBlackTree<E extends Comparable<E>> {
         // 元素不存在返回false
         if (null == target) return false;
         // 删除结点
-        delete(target);
+        deleteNode(target);
         return true;
     }
 
     /**
      * 删除结点
      *
-     * @param deletedNode 删除结点 @NotNull
+     * @param deletedNode 删除结点
      * @author pujian
      * @date 2021/9/10 13:22
      */
-    private void delete(RBNode<E> deletedNode) {
-        if (this.root == deletedNode) this.root = null;
-        // 叶子结点
-        if (null == deletedNode.left && null == deletedNode.right) {
-            // assert parent is not null
-            RBNode<E> parent = deletedNode.parent;
-            if (colorOf(deletedNode) == RED) { // 红色结点，直接删除
-                setLeft(parent, null);
-                setRight(parent, null);
-                setParent(deletedNode, null);
-            }
-            // 删除结点是黑色结点
-            else {
-
-            }
-        }
-        // 只有右节点，则右节点一定是红色，删除结点一定是黑色，用右节点的值替换当前结点的值，删除右结点
-        else if (null == deletedNode.left) {
-            // assert target's color is BLACK and right'color is RED
-            RBNode<E> right = deletedNode.right;
-            deletedNode.data = right.data;
-            setRight(deletedNode, null);
-            setParent(right, null);
-        }
-        // 只有左节点，则左节点一定是红色，删除结点一定是黑色，用左节点的值替换当前结点的值，删除左结点
-        else if (null == deletedNode.right) {
-            // assert target's color is BLACK and left'color is RED
-            RBNode<E> left = deletedNode.left;
-            deletedNode.data = left.data;
-            setLeft(deletedNode, null);
-            setParent(left, null);
-        }
-        // 左、右结点都存在，则删除直接后继
-        else {
+    private void deleteNode(RBNode<E> deletedNode) {
+        if (null != deletedNode.left && null != deletedNode.right) { // 左右结点都存在，转换为删除直接后继
             RBNode<E> successor = successor(deletedNode);
             deletedNode.data = successor.data;
-            // 删除直接后继
-            delete(successor);
+            deletedNode = successor;
         }
+        RBNode<E> child = null == deletedNode.left ? deletedNode.right : deletedNode.left;
+        if (null != child) { // 若只有左孩子或右孩子，转换为删除孩子结点
+            deletedNode.data = child.data;
+            deletedNode = child;
+        }
+
+        if (deletedNode == root) { // 红黑树只有一个根节点，直接删除
+            root = null;
+            return;
+        }
+
+        // 删除结点是黑色，需要先调整再删除
+        if (colorOf(deletedNode) == BLACK)
+            adjustBeforeDeletion(deletedNode);
+        // 删除结点
+        if (null != deletedNode.parent) {
+            if (deletedNode == deletedNode.parent.left)
+                deletedNode.parent.left = null;
+            else
+                deletedNode.parent.right = null;
+            deletedNode.parent = null;
+        }
+    }
+
+    private void adjustBeforeDeletion(RBNode<E> node) {
+
     }
 
     /**
