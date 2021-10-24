@@ -1,5 +1,7 @@
 package cn.zefre.tree.bitree;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -246,21 +248,6 @@ public class RedBlackTree<E extends Comparable<E>> {
         return null == node ? BLACK : node.color;
     }
 
-    private void setLeft(RBNode<E> node, RBNode<E> leftNode) {
-        if (null != node)
-            node.left = leftNode;
-    }
-
-    private void setRight(RBNode<E> node, RBNode<E> rightNode) {
-        if (null != node)
-            node.right = rightNode;
-    }
-
-    private void setParent(RBNode<E> node, RBNode<E> parent) {
-        if (null != node)
-            node.parent = parent;
-    }
-
     /**
      * 左旋
      *
@@ -338,7 +325,7 @@ public class RedBlackTree<E extends Comparable<E>> {
         // 元素不存在返回false
         if (null == target) return false;
         // 删除结点
-        deleteNode(target);
+        removeNode(target);
         return true;
     }
 
@@ -349,38 +336,62 @@ public class RedBlackTree<E extends Comparable<E>> {
      * @author pujian
      * @date 2021/9/10 13:22
      */
-    private void deleteNode(RBNode<E> deletedNode) {
-        if (null != deletedNode.left && null != deletedNode.right) { // 左右结点都存在，转换为删除直接后继
+    private void removeNode(RBNode<E> deletedNode) {
+        // 左右结点都存在，转换为删除直接后继
+        if (null != deletedNode.left && null != deletedNode.right) {
             RBNode<E> successor = successor(deletedNode);
             deletedNode.data = successor.data;
             deletedNode = successor;
         }
+        // 若只有左孩子或右孩子，转换为删除孩子结点
         RBNode<E> child = null == deletedNode.left ? deletedNode.right : deletedNode.left;
-        if (null != child) { // 若只有左孩子或右孩子，转换为删除孩子结点
+        if (null != child) {
             deletedNode.data = child.data;
             deletedNode = child;
         }
-
-        if (deletedNode == root) { // 红黑树只有一个根节点，直接删除
+        // 只有一个根节点，直接删除
+        if (deletedNode == root) {
             root = null;
             return;
         }
-
-        // 删除结点是黑色，需要先调整再删除
+        // 删除结点是黑色，先调整再删除
         if (colorOf(deletedNode) == BLACK)
             adjustBeforeDeletion(deletedNode);
         // 删除结点
-        if (null != deletedNode.parent) {
-            if (deletedNode == deletedNode.parent.left)
-                deletedNode.parent.left = null;
-            else
-                deletedNode.parent.right = null;
-            deletedNode.parent = null;
-        }
+        if (deletedNode == deletedNode.parent.left)
+            deletedNode.parent.left = null;
+        else
+            deletedNode.parent.right = null;
+        deletedNode.parent = null;
     }
 
     private void adjustBeforeDeletion(RBNode<E> node) {
+        RBNode<E> parent = node.parent;
+        RBNode<E> sibling;
+        if (node == parent.left) {
+            sibling = parent.right;
+            if (colorOf(sibling) == RED) {
+                parent.color = RED;
+                sibling.color = BLACK;
+                leftRotate(parent);
+                sibling = parent.right;
+            }
+            if (colorOf(sibling.left) == BLACK && colorOf(sibling.right) == BLACK) {
+                sibling.color = RED;
+                node = parent;
+            } else {
+                if (colorOf(sibling.right) == BLACK) {
+                    sibling.left.color = BLACK;
+                    sibling.color = RED;
+                    rightRotate(sibling);
+                    sibling = parent.right;
+                }
+                sibling.color = parent.color;
 
+            }
+        } else {
+
+        }
     }
 
     /**
@@ -399,7 +410,7 @@ public class RedBlackTree<E extends Comparable<E>> {
             while (successor.left != null)
                 successor = successor.left;
             return successor;
-        } else { // 结点右子树不存在，则直接后继是祖先结点，向上查找(找直接前驱的逆过程)
+        } else { // 结点右子树不存在，则直接后继是祖先结点，向上查找(找直接前驱的逆向过程)
             RBNode<E> parent = node.parent;
             RBNode<E> successor = node;
             while (parent != null && successor == parent.right) {
@@ -421,6 +432,25 @@ public class RedBlackTree<E extends Comparable<E>> {
      */
     public List<E> sequence(OrderEnum orderEnum) {
         return binaryTreeOrder.sequence(this.root, orderEnum);
+    }
+
+    public LinkedHashMap<E, String> sequence() {
+        List<RBNode<E>> sequenceList = new ArrayList<>();
+        if (null == root)
+            return null;
+        sequenceList.add(root);
+        for (int i = 0; i < sequenceList.size(); i++) {
+            RBNode<E> node = sequenceList.get(i);
+            if (null != node.left())
+                sequenceList.add(node.left);
+            if (null != node.right())
+                sequenceList.add(node.right);
+        }
+        LinkedHashMap<E, String> result = new LinkedHashMap<>();
+        for (RBNode<E> node : sequenceList) {
+            result.put(node.data, node.color ? "红" : "黑");
+        }
+        return result;
     }
 
 }
