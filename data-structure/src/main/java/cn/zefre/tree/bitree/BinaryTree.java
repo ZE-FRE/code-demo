@@ -14,7 +14,7 @@ import java.util.Queue;
  */
 public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
 
-    static class BitNode<E> implements Node<E> {
+    static class BitNode<E> {
         E data;
         BitNode<E> left;
         BitNode<E> right;
@@ -22,27 +22,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
         BitNode(E data) {
             this.data = data;
         }
-
-        @Override
-        public E getData() {
-            return data;
-        }
-
-        @Override
-        public Node<E> left() {
-            return this.left;
-        }
-
-        @Override
-        public Node<E> right() {
-            return this.right;
-        }
     }
-
-    /**
-     * 二叉树遍历工具
-     */
-    private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
 
     /**
      * 根结点
@@ -177,7 +157,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
 
     @Override
     public int nodeCount() {
-        return binaryTreeOrder.order(this.root, OrderEnum.SEQUENCE).size();
+        return 0;
     }
 
     @Override
@@ -232,17 +212,6 @@ public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
         return get(elem, node.right);
     }
 
-    /**
-     * 按指定顺序遍历二叉树，得到结点集合
-     *
-     * @param orderEnum 遍历顺序
-     * @author pujian
-     * @date 2021/9/7 10:51
-     * @return 遍历结点集合
-     */
-    public List<Node<E>> order(OrderEnum orderEnum) {
-        return binaryTreeOrder.order(this.root, orderEnum);
-    }
 
     /**
      * 按指定顺序遍历二叉树
@@ -253,7 +222,7 @@ public class BinaryTree<E> implements Tree<BinaryTree.BitNode<E>> {
      * @return 遍历结果集
      */
     public List<E> sequence(OrderEnum orderEnum) {
-        return binaryTreeOrder.sequence(this.root, orderEnum);
+        return null;
     }
 
 }

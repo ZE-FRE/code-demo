@@ -1,11 +1,17 @@
 package cn.zefre.tree.bitree;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 平衡二叉树
  * 又叫AVL树、Self-Balancing Binary Search Tree、Height-Balanced Binary Search Tree
+ *
+ * AVL树与二叉排序树相比，增加了一个平衡因子，表示左右子树高度之差
+ * -1：左子树比右子树高
+ * 0：左右子树等高
+ * 1：右子树比左子树高
  *
  * @author pujian
  * @date 2021/8/13 14:36
@@ -15,12 +21,21 @@ public class AVLTree<E extends Comparable<E>> {
     /**
      * AVL树结点
      */
-    static class AVLNode<E> implements Node<E> {
+    static class AVLNode<E> {
         E data;
+
+        /**
+         * 树高度(或者说深度)
+         */
         int height;
+
         AVLNode<E> left;
+
         AVLNode<E> right;
 
+        /**
+         * 构造函数，新增结点默认高度为1
+         */
         AVLNode(E data) {
             this(data, 1);
         }
@@ -29,28 +44,7 @@ public class AVLTree<E extends Comparable<E>> {
             this.data = data;
             this.height = height;
         }
-
-        @Override
-        public E getData() {
-            return this.data;
-        }
-
-        @Override
-        public Node<E> left() {
-            return this.left;
-        }
-
-        @Override
-        public Node<E> right() {
-            return this.right;
-        }
-
     }
-
-    /**
-     * 二叉树遍历工具
-     */
-    private BinaryTreeOrder<E> binaryTreeOrder = new BinaryTreeOrder<>();
 
     /**
      * AVL树根节点
@@ -67,7 +61,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @return 结点高度
      */
     private int calculateHeight(AVLNode<?> node) {
-        Objects.requireNonNull(node);
+        if (null == node) return 0;
         int leftHeight = null == node.left ? 0 : node.left.height;
         int rightHeight = null == node.right ? 0 : node.right.height;
         return 1 + Math.max(leftHeight, rightHeight);
@@ -82,30 +76,31 @@ public class AVLTree<E extends Comparable<E>> {
      * @return 结点平衡因子
      */
     private int calculateBalanceFactor(AVLNode<?> node) {
-        Objects.requireNonNull(node);
+        if (null == node) return 0;
         int leftHeight = null == node.left ? 0 : node.left.height;
         int rightHeight = null == node.right ? 0 : node.right.height;
         return leftHeight - rightHeight;
     }
 
     /**
-     * 查找元素结点
+     * AVL树查找结点
      *
      * @param elem 元素值
      * @author pujian
      * @date 2021/8/20 13:25
-     * @return 元素结点
+     * @return 元素存在返回对应结点，不存在返回null
      */
     public AVLNode<E> get(E elem) {
         if (null == elem) return null;
-        AVLNode<E> target = this.root;
+        AVLNode<E> target = root;
         while (null != target) {
-            if (target.data.compareTo(elem) == 0)
-                return target;
-            else if (elem.compareTo(target.data) < 0)
+            int compare = elem.compareTo(target.data);
+            if (compare < 0)
                 target = target.left;
-            else
+            else if (compare > 0)
                 target = target.right;
+            else
+                return target;
         }
         return null;
     }
@@ -120,15 +115,15 @@ public class AVLTree<E extends Comparable<E>> {
      */
     public boolean add(E elem) {
         if (null == elem) return false;
-        if (null == this.root) {
-            this.root = new AVLNode<>(elem);
+        if (null == root) {
+            root = new AVLNode<>(elem);
             return true;
         }
-        return add(elem, this.root);
+        return add(elem, root);
     }
 
     /**
-     * 插入一个元素，插入后保持树的平衡
+     * 插入一个元素，保持树的平衡
      *
      * @param elem 待插入元素
      * @param node 结点
@@ -137,27 +132,29 @@ public class AVLTree<E extends Comparable<E>> {
      * @return 插入成功返回true，若存在相同元素，返回false
      */
     private boolean add(E elem, AVLNode<E> node) {
-        boolean addSuccess;
-        if (elem.compareTo(node.data) == 0)
-            return false;
-        else if (elem.compareTo(node.data) < 0) {
-            if (null == node.left) {
+        // 是否已插入
+        boolean added = true;
+        int compare = elem.compareTo(node.data);
+        if (compare < 0) {
+            if (null == node.left) // 找到插入位置，插入结点
                 node.left = new AVLNode<>(elem);
-                addSuccess = true;
-            } else addSuccess = add(elem, node.left);
-        } else {
-            if (null == node.right) {
+            else
+                added = add(elem, node.left);
+        } else if (compare > 0) {
+            if (null == node.right) // 找到插入位置，插入结点
                 node.right = new AVLNode<>(elem);
-                addSuccess = true;
-            }
-            else addSuccess = add(elem, node.right);
+            else
+                added = add(elem, node.right);
+        } else { // 结点已存在
+            return false;
         }
-        if (addSuccess) {
+        if (added) {
             node.height = calculateHeight(node);
+            // 若插入后导致AVL树失衡，平衡AVL树
             if (Math.abs(calculateBalanceFactor(node)) > 1)
                 balance(node);
         }
-        return addSuccess;
+        return added;
     }
 
     /**
@@ -169,42 +166,35 @@ public class AVLTree<E extends Comparable<E>> {
      * @return 成功删除返回true，元素不存在返回false
      */
     public boolean remove(E elem) {
-        if (null == elem || null == this.root) return false;
-        // 扩展一个根节点
-        AVLNode<E> extendedRoot = new AVLNode<>(null);
-        extendedRoot.right = this.root;
-        extendedRoot.height = calculateHeight(extendedRoot);
-        boolean deleted = remove(elem, extendedRoot, this.root);
-        this.root = extendedRoot.right;
-        extendedRoot.right = null;
-        return deleted;
+        if (null == elem || null == root) return false;
+        return remove(elem, root, null);
     }
 
     /**
-     * 删除结点，并保持平衡
+     * 删除结点，保持树平衡的平衡
      *
      * @param elem 删除元素
-     * @param parentNode 删除节点的双亲结点
      * @param deletedNode 删除节点
+     * @param parent 删除节点的双亲结点
      * @author pujian
      * @date 2021/9/2 10:09
      * @return 成功删除返回true，元素不存在返回false
      */
-    private boolean remove(E elem, AVLNode<E> parentNode, AVLNode<E> deletedNode) {
-        if (null == deletedNode) { // 结点不存在，返回false
-            return false;
-        }
+    private boolean remove(E elem, AVLNode<E> deletedNode, AVLNode<E> parent) {
+        // 结点不存在，返回false
+        if (null == deletedNode) return false;
+        // 是否已删除
         boolean deleted = true;
-        int comparingValue = elem.compareTo(deletedNode.data);
-        if (comparingValue == 0)
-            delete(parentNode, deletedNode);
-        else if (comparingValue < 0)
-            deleted = remove(elem, deletedNode, deletedNode.left);
-        else
-            deleted = remove(elem, deletedNode, deletedNode.right);
-
+        int compare = elem.compareTo(deletedNode.data);
+        if (compare < 0)
+            deleted = remove(elem, deletedNode.left, deletedNode);
+        else if(compare > 0)
+            deleted = remove(elem, deletedNode.right, deletedNode);
+        else // 找到结点，删除结点
+            removeNode(deletedNode, parent);
         if (deleted) {
             deletedNode.height = calculateHeight(deletedNode);
+            // 若删除节点后导致AVL树失衡，平衡AVL树
             if (Math.abs(calculateBalanceFactor(deletedNode)) > 1)
                 balance(deletedNode);
         }
@@ -215,35 +205,41 @@ public class AVLTree<E extends Comparable<E>> {
     /**
      * 删除操作
      *
-     * @param parentNode 删除节点的双亲结点
      * @param deletedNode 删除节点
+     * @param parent 删除节点的双亲结点
      * @author pujian
      * @date 2021/9/2 10:14
      */
-    private void delete(AVLNode<E> parentNode, AVLNode<E> deletedNode) {
-        if (null == deletedNode.left && null == deletedNode.right) { // 叶子节点
-            if (parentNode.left == deletedNode) parentNode.left = null;
-            else parentNode.right = null;
-        } else if (null == deletedNode.left) { // 只有右子树，则右子树是叶子节点
-            deletedNode.data = deletedNode.right.data;
-            deletedNode.right = null;
-        } else if (null == deletedNode.right) { // 只有左子树，则左子树是叶子节点
-            deletedNode.data = deletedNode.left.data;
-            deletedNode.left = null;
-        } else { // 左右子树都存在
-            // 找直接后继
+    private void removeNode(AVLNode<E> deletedNode, AVLNode<E> parent) {
+        // 左右孩子都存在，转换为删除直接后继
+        if (null != deletedNode.left && null != deletedNode.right) {
+            parent = deletedNode;
             AVLNode<E> successor = deletedNode.right;
-            if (null == successor.left) { // 直接后继就是删除节点的右结点
-                deletedNode.data = successor.data;
-                deletedNode.right = successor.right;
-                successor.right = null;
-            } else {
-                while (successor.left != null) {
-                    successor = successor.left;
-                }
-                deletedNode.data = successor.data;
-                // 删除successor
-                remove(successor.data, deletedNode, deletedNode.right);
+            while (null != successor.left) {
+                parent = successor;
+                successor = successor.left;
+            }
+            deletedNode.data = successor.data;
+            // 删除直接后继
+            remove(successor.data, successor, parent);
+            return;
+        }
+        // 若只有左孩子或右孩子，直接用孩子结点代替
+        AVLNode<E> child = null == deletedNode.left ? deletedNode.right : deletedNode.left;
+        if (null != child) {
+            deletedNode.data = child.data;
+            deletedNode.left = child.left;
+            deletedNode.right = child.right;
+            child.left = null;
+            child.right = null;
+        } else {// 叶子结点
+            if (deletedNode == root)
+                root = null;
+            else {
+                if (deletedNode == parent.left)
+                    parent.left = null;
+                else
+                    parent.right = null;
             }
         }
     }
@@ -258,10 +254,18 @@ public class AVLTree<E extends Comparable<E>> {
     private void balance(AVLNode<E> node) {
         int nodeBf = calculateBalanceFactor(node);
         if (nodeBf > 1) { // 左子树高
+            /*
+             * 取等于0是因为在删除时存在如下情况：
+             *          10                     10                       6
+             *        /    \     删除12       /      LL型，右单旋       /   \
+             *       6      12   ---->       6        ---->          4     10
+             *      / \                     / \                            /
+             *     4   8                   4   8                          8
+             */
             if (calculateBalanceFactor(node.left) >= 0) {
                 // LL型，右单旋
                 rightRotate(node);
-            } else if (calculateBalanceFactor(node.left) < 0){
+            } else if (calculateBalanceFactor(node.left) < 0) {
                 // LR型，先左旋，再右旋
                 leftRotate(node.left);
                 rightRotate(node);
@@ -270,7 +274,7 @@ public class AVLTree<E extends Comparable<E>> {
             if (calculateBalanceFactor(node.right) <= 0) {
                 // RR型，左单旋
                 leftRotate(node);
-            } else if (calculateBalanceFactor(node.right) > 0){
+            } else if (calculateBalanceFactor(node.right) > 0) {
                 // RL型，先右旋，再左旋
                 rightRotate(node.right);
                 leftRotate(node);
@@ -281,53 +285,74 @@ public class AVLTree<E extends Comparable<E>> {
     /**
      * 左旋
      *
-     * @param node 被旋转子树根节点
+     *            pivot                              right
+     *          //    \\                           //     \\
+     *       left     right       ---->          pivot    node
+     *               //  \\                     //  \\
+     *              ?    node                 left   ?
+     *
+     * @param pivot 旋转结点
      * @author pujian
      * @date 2021/8/25 17:28
      */
-    private void leftRotate(AVLNode<E> node) {
-        E originalRootData = node.data;
-        AVLNode<E> right = node.right;
-        node.data = right.data;
-        node.right = right.right;
-        right.data = originalRootData;
+    private void leftRotate(AVLNode<E> pivot) {
+        E pivotOriginalData = pivot.data;
+        AVLNode<E> right = pivot.right;
+        pivot.data = right.data;
+        pivot.right = right.right;
+        right.data = pivotOriginalData;
         right.right = right.left;
-        right.left = node.left;
-        node.left = right;
-        node.left.height = calculateHeight(node.left);
-        node.height = calculateHeight(node);
+        right.left = pivot.left;
+        pivot.left = right;
+        pivot.left.height = calculateHeight(pivot.left);
+        pivot.height = calculateHeight(pivot);
     }
 
     /**
      * 右旋
      *
-     * @param node 被旋转子树根节点
+     *            pivot                          left
+     *          //    \\                       //    \\
+     *       left     right    ---->        node     pivot
+     *      //  \\                                  //  \\
+     *   node    ?                                 ?    right
+     *
+     * @param pivot 旋转结点
      * @author pujian
      * @date 2021/8/25 17:28
      */
-    private void rightRotate(AVLNode<E> node) {
-        E originalRootData = node.data;
-        AVLNode<E> left = node.left;
-        node.data = left.data;
-        node.left = left.left;
-        left.data = originalRootData;
+    private void rightRotate(AVLNode<E> pivot) {
+        E pivotOriginalData = pivot.data;
+        AVLNode<E> left = pivot.left;
+        pivot.data = left.data;
+        pivot.left = left.left;
+        left.data = pivotOriginalData;
         left.left = left.right;
-        left.right = node.right;
-        node.right = left;
-        node.right.height = calculateHeight(node.right);
-        node.height = calculateHeight(node);
+        left.right = pivot.right;
+        pivot.right = left;
+        pivot.right.height = calculateHeight(pivot.right);
+        pivot.height = calculateHeight(pivot);
     }
 
     /**
-     * 按指定顺序遍历AVL树
+     * 层序遍历AVL树
      *
-     * @param orderEnum 遍历顺序
      * @author pujian
      * @date 2021/9/6 17:33
      * @return 遍历结果集
      */
-    public List<E> sequence(OrderEnum orderEnum) {
-        return binaryTreeOrder.sequence(this.root, orderEnum);
+    public List<E> sequence() {
+        List<AVLNode<E>> sequenceList = new ArrayList<>();
+        if (null != root)
+            sequenceList.add(root);
+        for (int i = 0; i < sequenceList.size(); i++) {
+            AVLNode<E> node = sequenceList.get(i);
+            if (null != node.left)
+                sequenceList.add(node.left);
+            if (null != node.right)
+                sequenceList.add(node.right);
+        }
+        return sequenceList.stream().map(avlNode -> avlNode.data).collect(Collectors.toList());
     }
 
 }
