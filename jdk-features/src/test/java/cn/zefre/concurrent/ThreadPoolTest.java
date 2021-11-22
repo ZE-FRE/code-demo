@@ -36,74 +36,32 @@ public class ThreadPoolTest {
     @Test
     public void test() throws InterruptedException {
         LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(4);
-        ExecutorService executorService = new ThreadPoolExecutor(2, 4,
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 4,
                 500L, TimeUnit.MICROSECONDS, queue, new MyThreadFactory());
 
-        /*for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 15; i++) {
             System.out.println("  queue size = " + queue.size() + "  ");
             try {
-                executorService.submit(new Task());
+                threadPool.submit(new Task());
             } catch (RejectedExecutionException e) {
-                System.err.println("the thread poll is full");
+                System.err.println("the thread pool is full");
+                System.out.println(e.getMessage());
             } finally {
                 TimeUnit.MILLISECONDS.sleep(100);
             }
-        }*/
+        }
+
+        System.out.println("当前线程数：" + threadPool.getPoolSize());
+        threadPool.allowCoreThreadTimeOut(true);
+        TimeUnit.SECONDS.sleep(2);
+        System.out.println("当前线程数：" + threadPool.getPoolSize());
         /*
          * test shutdown
          */
-        /*((ThreadPoolExecutor) executorService).allowCoreThreadTimeOut(true);
-        executorService.submit(new Task());
-        executorService.shutdown();
-        // 让main线程等待自己
-        Thread.currentThread().join();*/
-        //TimeUnit.SECONDS.sleep(4);
+        threadPool.submit(new Task());
+        threadPool.shutdown();
 
-
-        Runnable runnable = () -> {
-            System.out.println(Thread.currentThread().getName() + " execute");
-            try {
-                TimeUnit.MILLISECONDS.sleep(500);
-                Thread.currentThread().interrupt();
-                sayHello();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        };
-        Thread t1 = new Thread(runnable, "t1");
-        t1.start();
-        TimeUnit.MILLISECONDS.sleep(1000);
+        TimeUnit.SECONDS.sleep(4);
     }
 
-    private void sayHello() throws InterruptedException {
-        if(Thread.interrupted()) {
-            throw new InterruptedException("线程被中断！");
-        }
-        System.out.println("hello");
-    }
-
-
-    /**
-     * 测试在可中断方法之前调用中断方法，可中断方法是否仍然执行并捕获中断异常
-     *
-     * @author pujian
-     * @date 2021/5/26 14:39
-     * @return
-     */
-    @Test
-    public void interruptBeforeInterruptedMethod() {
-        System.out.println("thread interrupted status:" + Thread.interrupted());
-
-        Thread.currentThread().interrupt();
-
-        System.out.println("thread interrupted status:" + Thread.currentThread().isInterrupted());
-
-        try {
-            System.out.println("thread will sleep 100 milli seconds");
-            TimeUnit.MILLISECONDS.sleep(100);
-        } catch (InterruptedException e) {
-            System.out.println("thread still was interrupted");
-        }
-        System.out.println("thread interrupted status:" + Thread.currentThread().isInterrupted());
-    }
 }

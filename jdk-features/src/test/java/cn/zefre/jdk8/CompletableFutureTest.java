@@ -1,5 +1,6 @@
 package cn.zefre.jdk8;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,12 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * @author pujian
  * @date 2020/11/11 15:19
  */
+@Slf4j
 public class CompletableFutureTest {
 
     private HttpClient httpClient =  new HttpClient();
@@ -95,6 +98,7 @@ public class CompletableFutureTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("第一步执行完毕");
             return "hello";
         }).thenApplyAsync(str -> {
             System.out.println(Thread.currentThread().getName() + " 执行第二步");
@@ -338,6 +342,35 @@ public class CompletableFutureTest {
             return null;
         });
         TimeUnit.MILLISECONDS.sleep(2500);
+    }
+
+    @Test
+    public void testExecuteTasksAsync() {
+        Supplier<String> task1 = () -> {
+            System.out.println(Thread.currentThread().getName() + ":任务1执行");
+            return "hello";
+        };
+        Supplier<Integer> task2 = () -> {
+            System.out.println(Thread.currentThread().getName() + ":任务2开始执行");
+            try {
+                TimeUnit.MILLISECONDS.sleep(700);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + ":任务2执行完毕");
+            return 3/0;
+        };
+        Supplier<String> task3 = () -> {
+            System.out.println(Thread.currentThread().getName() + ":任务3已执行");
+            int[] nums = new int[2];
+            nums[2] = 12;
+            return "world";
+        };
+        long startTime = System.currentTimeMillis();
+        System.out.println(Thread.currentThread().getName() + ":调用执行");
+        List<?> results = CompletableFutureUtil.executeTasksAsync(Executors.newFixedThreadPool(3), task1, task2, task3);
+        System.out.println(Thread.currentThread().getName() + ":调用花费时间：" + (System.currentTimeMillis() - startTime));
+        results.forEach(System.out::println);
     }
 }
 

@@ -256,11 +256,11 @@ public class AVLTree<E extends Comparable<E>> {
         if (nodeBf > 1) { // 左子树高
             /*
              * 取等于0是因为在删除时存在如下情况：
-             *          10                     10                       6
-             *        /    \     删除12       /      LL型，右单旋       /   \
-             *       6      12   ---->       6        ---->          4     10
-             *      / \                     / \                            /
-             *     4   8                   4   8                          8
+             *          10                     10                      6
+             *        /    \     删除12        /     LL型，右单旋       /   \
+             *       6      12   ---->       6        ---->         4     10
+             *      / \                     / \                           /
+             *     4   8                   4   8                         8
              */
             if (calculateBalanceFactor(node.left) >= 0) {
                 // LL型，右单旋
