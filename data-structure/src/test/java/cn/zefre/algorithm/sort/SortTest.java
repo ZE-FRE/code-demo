@@ -1,6 +1,5 @@
 package cn.zefre.algorithm.sort;
 
-import cn.zefre.proxy.ProxyUtil;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -11,7 +10,7 @@ public class SortTest {
 
     @Test
     public void testSort() {
-        int[] arr = new int[ARR_SEED.length];
+        int[] arr;
         System.out.print("原始数组：");
         printArr(ARR_SEED);
 
@@ -79,7 +78,7 @@ public class SortTest {
         System.out.println("快速排序：");
         int[] arr = Arrays.copyOf(ARR_SEED, ARR_SEED.length);
         Sort.quickSort(arr, 0, arr.length-1);
-
+        printArr(arr);
         System.out.println("======");
         arr = Arrays.copyOf(ARR_SEED, ARR_SEED.length);
         Sort.quickSortByInsert(arr, 0, arr.length-1);
@@ -88,7 +87,6 @@ public class SortTest {
 
     /**
      * 打印数组
-     * @param arr
      */
     public static void printArr(int[] arr) {
         for(int a : arr) {
@@ -97,10 +95,4 @@ public class SortTest {
         System.out.println();
     }
 
-    @Test
-    public void testProxy() {
-        ISort proxy = (ISort) ProxyUtil.getProxy(new Sort());
-        String s = proxy.sortTest(ARR_SEED);
-        System.out.println(s);
-    }
 }
