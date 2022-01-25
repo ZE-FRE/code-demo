@@ -104,7 +104,7 @@ public class ReentrantLockTest {
         }
     }
 
-    /**
+    /*
      *lock()方法与lockInterruptibly()方法的区别在于中断，lock()方法会一直等待获取锁
      * 而lockInterruptibly()方法在调用之前线程中断状态为true或调用过程中被其他线程中断，则抛出异常
      */
@@ -157,7 +157,7 @@ public class ReentrantLockTest {
                 System.out.println("任务二执行完毕！");
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 rlock.unlock();
             }
         });

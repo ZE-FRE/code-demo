@@ -286,9 +286,9 @@ public class AVLTree<E extends Comparable<E>> {
      * 左旋
      *
      *            pivot                              right
-     *          //    \\                           //     \\
+     *          /      \                            /     \
      *       left     right       ---->          pivot    node
-     *               //  \\                     //  \\
+     *               /    \                     /   \
      *              ?    node                 left   ?
      *
      * @param pivot 旋转结点
@@ -312,9 +312,9 @@ public class AVLTree<E extends Comparable<E>> {
      * 右旋
      *
      *            pivot                          left
-     *          //    \\                       //    \\
+     *          /      \                       /     \
      *       left     right    ---->        node     pivot
-     *      //  \\                                  //  \\
+     *      /   \                                   /    \
      *   node    ?                                 ?    right
      *
      * @param pivot 旋转结点

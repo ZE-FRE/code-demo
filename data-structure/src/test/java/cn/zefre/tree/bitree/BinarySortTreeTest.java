@@ -171,4 +171,31 @@ public class BinarySortTreeTest {
         Assert.assertEquals(Arrays.asList(39, 27, 64, 6, 28, 48, 14, 32), binarySortTree.sequence());
 
     }
+
+    /**
+     * 测试左倾树根节点
+     *
+     * @author pujian
+     * @date 2021/11/29 14:24
+     */
+    @Test
+    public void testRemoveLeftInclineRoot() {
+        /*
+         * 构造如下一颗二叉树
+         *       50
+         *      /
+         *     40
+         *    /
+         *   30
+         */
+        BinarySortTree<Integer> binarySortTree = new BinarySortTree<>();
+        binarySortTree.add(50);
+        binarySortTree.add(40);
+        binarySortTree.add(30);
+
+        // 删除根节点
+        binarySortTree.remove(50);
+
+        Assert.assertEquals(Arrays.asList(40, 30), binarySortTree.sequence());
+    }
 }

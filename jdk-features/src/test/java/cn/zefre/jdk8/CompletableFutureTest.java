@@ -301,6 +301,9 @@ public class CompletableFutureTest {
             return "third";
         })).thenAccept(result -> {
             System.out.println("result = " + result);
+        }).exceptionally(e -> {
+            System.out.println(e.getMessage());
+            return null;
         });
         TimeUnit.MILLISECONDS.sleep(2500);
     }
