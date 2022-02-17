@@ -49,7 +49,7 @@ public class Sort {
     /**
      * 选择排序
      */
-    public static void selectSort(int[] arr) {
+    public static void selectionSort(int[] arr) {
         for (int i = 0; i < arr.length - 1; i++) {
             int min = i;
             for (int j = i; j < arr.length; j++) {
@@ -64,7 +64,7 @@ public class Sort {
     /**
      * 直接插入排序
      */
-    public static void insertSort(int[] arr) {
+    public static void insertionSort(int[] arr) {
         for (int i = 1; i < arr.length; i++) {
             int j = i - 1;
             // 待插入的元素
@@ -94,6 +94,7 @@ public class Sort {
 
     /**
      * 二路归并排序
+     *
      * @author pujian
      * @date 2020/11/17 09:06
      * 时间复杂度：最坏：O(nlogn) 平均：O(nlogn) 最好：O(nlogn)
@@ -115,18 +116,14 @@ public class Sort {
         mergeSortLR(rightArr);
         // 将左、右两个有序数组合并为一个有序数组
         int leftIndex = 0, rightIndex = 0, mergeIndex = 0;
-        while (leftIndex < leftArr.length && rightIndex < rightArr.length) {
+        while (leftIndex < leftArr.length && rightIndex < rightArr.length)
             arr[mergeIndex++] = leftArr[leftIndex] <= rightArr[rightIndex] ? leftArr[leftIndex++] : rightArr[rightIndex++];
-        }
-        while (leftIndex < leftArr.length) {
+        while (leftIndex < leftArr.length)
             // 将左边数组剩余元素复制到主干中
             arr[mergeIndex++] = leftArr[leftIndex++];
-        }
-        while (rightIndex < rightArr.length) {
+        while (rightIndex < rightArr.length)
             // 将右边数组剩余元素复制到主干中
             arr[mergeIndex++] = rightArr[rightIndex++];
-        }
-
     }
 
     /*
@@ -154,52 +151,13 @@ public class Sort {
         mergeSortInTemp(arr, mid+1, hi);
         // 合并左、右两部分
         int[] temp = new int[hi-lo+1];
-        int leftIndex = lo, rightIndex = mid+1, mergeIndex = 0;
-        while (leftIndex <= mid && rightIndex <= hi) {
-            temp[mergeIndex++] = arr[leftIndex] <= arr[rightIndex] ? arr[leftIndex++] : arr[rightIndex++];
-        }
-        while (leftIndex <= mid) {
-            // 将左半部分数组剩余元素复制到temp
-            temp[mergeIndex++] = arr[leftIndex++];
-        }
-        while (rightIndex <= hi) {
-            // 将右半部分数组剩余元素复制到temp
-            temp[mergeIndex++] = arr[rightIndex++];
-        }
-        // 将temp复制到arr
-        System.arraycopy(temp, 0, arr, lo, temp.length);
+        merge(arr, temp, lo, mid, hi);
     }
 
     /**
-     * 在上一步基础上将temp数组移出来，不要每次都申请空间，temp直接通过外部传入
+     * 归并排序
+     * 在上一步基础上，将temp数组移出来，不要每次都申请空间，temp直接通过外部传入
      * 空间复杂度提升到O(n)
-     */
-    public static void mergeSortOutTemp(int[] arr, int[] temp, int lo, int hi) {
-        if (lo == hi)
-            return;
-        int mid = (lo + hi) / 2;
-        // 对左边部分数组排序
-        mergeSortOutTemp(arr, temp, lo, mid);
-        // 对右边部分数组排序
-        mergeSortOutTemp(arr, temp, mid+1, hi);
-        // 开始合并左、右两部分
-        int leftIndex = lo, rightIndex = mid+1, mergeIndex = 0;
-        while (leftIndex <= mid && rightIndex <= hi) {
-            temp[mergeIndex++] = arr[leftIndex] <= arr[rightIndex] ? arr[leftIndex++] : arr[rightIndex++];
-        }
-        while (leftIndex <= mid) {
-            temp[mergeIndex++] = arr[leftIndex++];
-        }
-        while (rightIndex <= hi) {
-            temp[mergeIndex++] = arr[rightIndex++];
-        }
-        // 将temp复制到arr
-        System.arraycopy(temp, 0, arr, lo, hi-lo+1);
-    }
-
-
-    /**
-     * 在上一步基础上，将merge操作提出来封装成一个方法
      */
     public static void mergeSort(int[] arr, int[] temp, int lo, int hi) {
         if (lo == hi)
@@ -210,21 +168,18 @@ public class Sort {
         merge(arr, temp, lo, mid, hi);
     }
 
-    public static void merge(int[] arr, int[] temp, int lo, int mid, int hi) {
+    private static void merge(int[] arr, int[] temp, int lo, int mid, int hi) {
         // 左边部分的最大值比右边部分的最小值还小，直接返回即可
         // 有这一步处理，对一个有序的序列进行排序，时间复杂度可达到O(n)
         if (arr[mid] <= arr[mid+1])
             return;
         int leftIndex = lo, rightIndex = mid+1, mergeIndex = 0;
-        while (leftIndex <= mid && rightIndex <= hi) {
+        while (leftIndex <= mid && rightIndex <= hi)
             temp[mergeIndex++] = arr[leftIndex] <= arr[rightIndex] ? arr[leftIndex++] : arr[rightIndex++];
-        }
-        while (leftIndex <= mid) {
+        while (leftIndex <= mid)
             temp[mergeIndex++] = arr[leftIndex++];
-        }
-        while (rightIndex <= hi) {
+        while (rightIndex <= hi)
             temp[mergeIndex++] = arr[rightIndex++];
-        }
         // 将temp复制到arr
         System.arraycopy(temp, 0, arr, lo, hi-lo+1);
     }
@@ -323,6 +278,5 @@ public class Sort {
         }
         return partition;
     }
-
 
 }

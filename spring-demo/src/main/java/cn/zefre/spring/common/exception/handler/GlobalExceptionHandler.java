@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Response validationException(MethodArgumentNotValidException e) {
-        List<ObjectError> allErrors = e.getAllErrors();
+        List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
         String errorMsg = allErrors.stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(","));
         log.info("请求参数错误：{}", errorMsg);
         return Response.validationFailed(allErrors.get(0).getDefaultMessage());
