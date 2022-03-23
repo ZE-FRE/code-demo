@@ -256,14 +256,14 @@ public class AVLTree<E extends Comparable<E>> {
         if (nodeBf > 1) { // 左子树高
             /*
              * 取等于0是因为在删除时存在如下情况：
-             *          10                     10                      6
-             *        /    \     删除12        /     LL型，右单旋       /   \
-             *       6      12   ---->       6        ---->          4     10
+             *          10                     10                       6
+             *        /    \     删除12        /     LL型，右旋        /    \
+             *       6      12   ---->       6        ---->          4    10
              *      / \                     / \                           /
              *     4   8                   4   8                         8
              */
             if (calculateBalanceFactor(node.left) >= 0) {
-                // LL型，右单旋
+                // LL型，右旋
                 rightRotate(node);
             } else if (calculateBalanceFactor(node.left) < 0) {
                 // LR型，先左旋，再右旋
@@ -272,7 +272,7 @@ public class AVLTree<E extends Comparable<E>> {
             }
         } else if (nodeBf < -1) { // 右子树高
             if (calculateBalanceFactor(node.right) <= 0) {
-                // RR型，左单旋
+                // RR型，左旋
                 leftRotate(node);
             } else if (calculateBalanceFactor(node.right) > 0) {
                 // RL型，先右旋，再左旋

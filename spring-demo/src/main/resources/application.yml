@@ -4,8 +4,19 @@ spring:
   application:
     name: spring-demo
   jackson:
+    locale: zh_CN
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+    default-property-inclusion: NON_EMPTY
+    serialization:
+      # 美化输出
+      indent-output: true
+      # 忽略一个字段也没有的POJO的序列化
+      fail-on-empty-beans: false
+      write-dates-as-timestamps: false
+    deserialization:
+      # 在反序列化时忽略在 json 中存在但 Java 对象不存在的属性
+      fail-on-unknown-properties: false
   # redis配置
   redis:
     host: 127.0.0.1
