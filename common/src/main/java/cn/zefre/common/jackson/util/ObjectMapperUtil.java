@@ -39,7 +39,7 @@ public class ObjectMapperUtil {
         // 在序列化时忽略值为 null 的属性
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         // 忽略值为默认值的属性
-        objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_DEFAULT);
+        objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         // 设置date format为"yyyy-MM-dd HH:mm::ss"
         objectMapper.setDateFormat(DateFormat.getDateTimeInstance());
     }

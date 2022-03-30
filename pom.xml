@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <scope>provided</scope>
         </dependency>
         <!-- fastjson -->
         <dependency>
@@ -40,7 +40,7 @@
 
     </dependencies>
 
-    <!-- 依赖版本号管理 -->
+    <!-- 依赖版本管理 -->
     <dependencyManagement>
         <dependencies>
             <dependency>

@@ -2,12 +2,14 @@ package cn.zefre.spring.validation.service;
 
 import cn.zefre.spring.validation.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import java.util.Set;
 
@@ -45,16 +47,28 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateNameById() {
-        userService.updateNameById("", null);
+        try {
+            userService.updateNameById("", null);
+        } catch (Exception e) {
+            Assert.assertSame(ConstraintViolationException.class, e.getClass());
+        }
     }
 
     @Test
     public void testGetById() {
-        UserDto userDto = userService.getById("1");
+        try {
+            userService.getById("1");
+        } catch (Exception e) {
+            Assert.assertSame(ConstraintViolationException.class, e.getClass());
+        }
     }
 
     @Test
     public void testInsert() {
-        userService.insert(new UserDto());
+        try {
+            userService.insert(new UserDto());
+        } catch (Exception e) {
+            Assert.assertSame(ConstraintViolationException.class, e.getClass());
+        }
     }
 }

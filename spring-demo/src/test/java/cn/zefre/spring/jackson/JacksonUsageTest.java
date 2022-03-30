@@ -1,6 +1,6 @@
 package cn.zefre.spring.jackson;
 
-import cn.zefre.spring.common.Response;
+import cn.zefre.base.web.response.UniformResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class JacksonUsageTest {
 
     @Test
     public void testSerialize() throws JsonProcessingException {
-        String response = objectMapper.writeValueAsString(Response.ok());
+        String response = objectMapper.writeValueAsString(UniformResponse.ok());
         System.out.println("response = " + response);
     }
 

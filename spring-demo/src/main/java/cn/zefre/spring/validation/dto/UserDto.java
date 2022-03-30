@@ -1,6 +1,6 @@
 package cn.zefre.spring.validation.dto;
 
-import cn.zefre.spring.validation.constraint.Phone;
+import cn.zefre.base.validation.constraint.Phone;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
