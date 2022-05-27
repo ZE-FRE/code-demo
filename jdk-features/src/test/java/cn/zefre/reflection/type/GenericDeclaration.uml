@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>java.lang.reflect.GenericDeclaration</OriginalElement>
+  <nodes>
+    <node x="126.125" y="82.0">java.lang.reflect.GenericDeclaration</node>
+    <node x="78.0" y="164.0">java.lang.reflect.Executable</node>
+    <node x="271.25" y="164.0">java.lang.Class</node>
+    <node x="0.0" y="246.0">java.lang.reflect.Constructor</node>
+    <node x="169.0" y="246.0">java.lang.reflect.Method</node>
+    <node x="135.625" y="0.0">java.lang.reflect.AnnotatedElement</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="java.lang.reflect.GenericDeclaration" target="java.lang.reflect.AnnotatedElement">
+      <point x="0.0" y="-16.0" />
+      <point x="1.4210854715202004E-14" y="16.0" />
+    </edge>
+    <edge source="java.lang.reflect.Executable" target="java.lang.reflect.GenericDeclaration">
+      <point x="34.75" y="-16.0" />
+      <point x="182.25" y="139.0" />
+      <point x="179.375" y="139.0" />
+      <point x="-53.25" y="16.0" />
+    </edge>
+    <edge source="java.lang.Class" target="java.lang.reflect.GenericDeclaration">
+      <point x="-23.25" y="-16.0" />
+      <point x="294.5" y="139.0" />
+      <point x="285.875" y="139.0" />
+      <point x="53.25" y="16.0" />
+    </edge>
+    <edge source="java.lang.reflect.Constructor" target="java.lang.reflect.Executable">
+      <point x="0.0" y="-16.0" />
+      <point x="74.5" y="221.0" />
+      <point x="112.75" y="221.0" />
+      <point x="-34.75" y="16.0" />
+    </edge>
+    <edge source="java.lang.Class" target="java.lang.reflect.AnnotatedElement">
+      <point x="23.25" y="-16.0" />
+      <point x="341.0" y="139.0" />
+      <point x="349.625" y="139.0" />
+      <point x="349.625" y="57.0" />
+      <point x="297.2916666666667" y="57.0" />
+      <point x="64.66666666666669" y="16.0" />
+    </edge>
+    <edge source="java.lang.reflect.Executable" target="java.lang.reflect.AnnotatedElement">
+      <point x="-34.75" y="-16.0" />
+      <point x="112.75" y="139.0" />
+      <point x="115.625" y="139.0" />
+      <point x="115.625" y="57.0" />
+      <point x="167.95833333333331" y="57.0" />
+      <point x="-64.66666666666667" y="16.0" />
+    </edge>
+    <edge source="java.lang.reflect.Method" target="java.lang.reflect.Executable">
+      <point x="0.0" y="-16.0" />
+      <point x="220.5" y="221.0" />
+      <point x="182.25" y="221.0" />
+      <point x="34.75" y="16.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="182.5" y="139.0" />
+  <SelectedNodes>
+    <node>java.lang.reflect.GenericDeclaration</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
