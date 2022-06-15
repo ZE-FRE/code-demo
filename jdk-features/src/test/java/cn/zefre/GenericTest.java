@@ -1,7 +1,9 @@
 package cn.zefre;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -151,6 +153,39 @@ public class GenericTest {
         overallCase.map(new BigRabbit(), mapper).sayHello(); // 编译通过，子类型BigRabbit可以赋值给Rabbit
 
         // overallCase.map(new Animal(), mapper); // 编译不通过，父类型Animal不能赋值给子类型Rabbit
+    }
+
+
+
+    @Test
+    public void testGenericArray() throws InstantiationException, IllegalAccessException {
+
+        // 数组的协变
+        Rabbit[] rabbitArr = new BigRabbit[2];
+        rabbitArr[0] = new BigRabbit();
+        // rabbitArr[1] = new Rabbit(); // 运行时抛java.lang.ArrayStoreException异常
+
+        // 泛型的不变
+        // List<Rabbit> rabbitList = new ArrayList<BigRabbit>(); // 编译期类型异常
+
+        Rabbit[] rabbits = instantiateGenericArray(Rabbit.class, 2);
+        Assert.assertEquals(2, rabbits.length);
+    }
+
+    /**
+     * 常用的实例化泛型数组的方式
+     *
+     * @param clazz clazz
+     * @param size 数组大小
+     * @author pujian
+     * @date 2022/6/2 14:35
+     * @return T[]
+     */
+    public static <T> T[] instantiateGenericArray(Class<T> clazz, int size) throws IllegalAccessException, InstantiationException {
+        // T t = new T(); // 报错，泛型类型不能直接实例化，只能通过反射实例化
+        T t = clazz.newInstance(); // OK
+        // T[] tArr = new T[size]; // 报错，不能这样实例化泛型数组
+        return (T[]) Array.newInstance(clazz, size);
     }
 
 }

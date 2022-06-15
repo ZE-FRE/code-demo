@@ -17,7 +17,7 @@ public class ArithmeticUtil {
      * @Param express
      * @return
      */
-    public static Double caculate(String express){
+    public static Double calculate(String express){
         checkExpress(express);
         return operate(toSuffixExpress(express));
     }
