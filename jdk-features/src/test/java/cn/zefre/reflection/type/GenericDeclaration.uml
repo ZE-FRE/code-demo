@@ -12,15 +12,15 @@
   </nodes>
   <notes />
   <edges>
-    <edge source="java.lang.reflect.GenericDeclaration" target="java.lang.reflect.AnnotatedElement">
-      <point x="0.0" y="-16.0" />
-      <point x="1.4210854715202004E-14" y="16.0" />
-    </edge>
     <edge source="java.lang.reflect.Executable" target="java.lang.reflect.GenericDeclaration">
       <point x="34.75" y="-16.0" />
       <point x="182.25" y="139.0" />
       <point x="179.375" y="139.0" />
       <point x="-53.25" y="16.0" />
+    </edge>
+    <edge source="java.lang.reflect.GenericDeclaration" target="java.lang.reflect.AnnotatedElement">
+      <point x="0.0" y="-16.0" />
+      <point x="1.4210854715202004E-14" y="16.0" />
     </edge>
     <edge source="java.lang.Class" target="java.lang.reflect.GenericDeclaration">
       <point x="-23.25" y="-16.0" />

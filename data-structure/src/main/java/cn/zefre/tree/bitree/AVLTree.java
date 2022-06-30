@@ -171,7 +171,7 @@ public class AVLTree<E extends Comparable<E>> {
     }
 
     /**
-     * 删除结点，保持树平衡的平衡
+     * 删除结点，保持树的平衡
      *
      * @param elem 删除元素
      * @param deletedNode 删除节点
