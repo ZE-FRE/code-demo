@@ -59,9 +59,9 @@ public class WhereBuilder {
             if (condition.isAtomic()) {
                 parent.addChild(new AtomicWhere(condition.getConjunction(), condition.getExpression()));
             } else {
-                CompositeWhere branchWhere = new CompositeWhere(condition.getConjunction());
-                parent.addChild(branchWhere);
-                build(branchWhere, condition.getChildren());
+                CompositeWhere compositeWhere = new CompositeWhere(condition.getConjunction());
+                parent.addChild(compositeWhere);
+                build(compositeWhere, condition.getChildren());
             }
         }
     }

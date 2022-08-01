@@ -47,7 +47,7 @@ public class CompositeWhere extends Where {
 
     @Override
     public void collectExpressions(List<Expression> results) {
-        children.forEach(condition -> condition.collectExpressions(results));
+        children.forEach(expression -> expression.collectExpressions(results));
     }
 
     @Override

@@ -33,6 +33,7 @@ public class WhereBuilderTest {
         Condition condition = objectMapper.readValue(json, Condition.class);
         Where where = WhereBuilder.build(condition);
         String expectedWhereSql = "zh_name = #{whereMap.zh_name}";
+        Assert.assertNotNull(where);
         Assert.assertEquals(expectedWhereSql, where.getAsString());
     }
 
@@ -42,6 +43,7 @@ public class WhereBuilderTest {
         Condition condition = objectMapper.readValue(inputStream, Condition.class);
         Where where = WhereBuilder.build(condition);
         String expectedWhereSql = "staff_name = #{whereMap.staff_name} AND staff_id = #{whereMap.staff_id}";
+        Assert.assertNotNull(where);
         Assert.assertEquals(expectedWhereSql, where.getAsString());
     }
 
@@ -54,6 +56,7 @@ public class WhereBuilderTest {
                 "OR (en_name = #{whereMap.en_name} AND field_length " +
                 "IN (#{whereMap.field_length[0]},#{whereMap.field_length[1]}))) " +
                 "AND data_element_id = #{whereMap.data_element_id}";
+        Assert.assertNotNull(where);
         Assert.assertEquals(expectedWhereSql, where.getAsString());
     }
 
