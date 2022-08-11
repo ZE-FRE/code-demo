@@ -15,8 +15,6 @@
         <module>leetcode-algorithm</module>
         <module>design-pattern</module>
         <module>common</module>
-        <module>non-spring-demo</module>
-        <module>spring-demo</module>
     </modules>
 
     <dependencies>
