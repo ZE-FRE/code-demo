@@ -1,4 +1,4 @@
-package cn.zefre;
+package cn.zefre.common.jackson;
 
 import cn.zefre.common.jackson.entity.Car;
 import cn.zefre.common.jackson.entity.DateWrap;
