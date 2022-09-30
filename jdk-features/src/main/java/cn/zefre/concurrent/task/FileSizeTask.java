@@ -16,13 +16,16 @@ public class FileSizeTask extends RecursiveTask<Long> {
     @Override
     protected Long compute() {
         //System.out.println(Thread.currentThread() + " start calculate " + file.getName() + " size!");
-        if(null == file || !file.exists()) {
+        if (null == file || !file.exists()) {
             throw new RuntimeException("文件不存在!");
         }
 
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
             File[] children = file.listFiles();
-            Deque<FileSizeTask> deque = new LinkedList();
+            if (children == null) {
+                return 0L;
+            }
+            Deque<FileSizeTask> deque = new LinkedList<>();
             for (File childFile : children) {
                 FileSizeTask fileSizeTask = new FileSizeTask(childFile);
                 fileSizeTask.fork();

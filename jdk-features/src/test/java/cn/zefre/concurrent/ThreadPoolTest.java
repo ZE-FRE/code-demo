@@ -13,9 +13,10 @@ public class ThreadPoolTest {
 
     static class MyThreadFactory implements ThreadFactory {
         private AtomicInteger atomic = new AtomicInteger(1);
-        private String namePrefix = "demo-pool-thread-";
+
         @Override
         public Thread newThread(Runnable r) {
+            String namePrefix = "demo-pool-thread-";
             return new Thread(r, namePrefix + atomic.getAndIncrement());
         }
     }

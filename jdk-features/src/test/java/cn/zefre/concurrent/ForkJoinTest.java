@@ -49,6 +49,9 @@ public class ForkJoinTest {
         long size = 0;
         if(file.isDirectory()) {
             File[] children = file.listFiles();
+            if (children == null) {
+                return 0;
+            }
             for(File childFile : children)
                 size += calculateFileSize(childFile);
         } else {

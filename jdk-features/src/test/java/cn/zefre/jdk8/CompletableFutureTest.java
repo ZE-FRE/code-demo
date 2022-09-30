@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CompletableFutureTest {
 
-    private HttpClient httpClient =  new HttpClient();
+    private HttpClient httpClient = new HttpClient();
 
     private List<Shop> shopList;
 
@@ -40,7 +40,7 @@ public class CompletableFutureTest {
             httpClient.getPrice(shop);
             System.out.println(shop);
         });
-        System.out.println("同步花费时间：" + (System.currentTimeMillis()-start) + "ms");
+        System.out.println("同步花费时间：" + (System.currentTimeMillis() - start) + "ms");
     }
 
     @Test
@@ -49,10 +49,10 @@ public class CompletableFutureTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
         List<Future<Shop>> futures = shopList.stream().map(shop -> executor.submit(() -> httpClient.getPrice(shop))).collect(Collectors.toList());
-        for(Future<Shop> future : futures) {
+        for (Future<Shop> future : futures) {
             System.out.println(future.get());
         }
-        System.out.println("Future花费时间：" + (System.currentTimeMillis()-start) + "ms");
+        System.out.println("Future花费时间：" + (System.currentTimeMillis() - start) + "ms");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class CompletableFutureTest {
 
         List<Shop> shops = shopList.parallelStream().map(shop -> httpClient.getPrice(shop)).collect(Collectors.toList());
         shops.stream().forEach(System.out::println);
-        System.out.println("并行流花费时间：" + (System.currentTimeMillis()-start) + "ms");
+        System.out.println("并行流花费时间：" + (System.currentTimeMillis() - start) + "ms");
     }
 
 
@@ -73,7 +73,7 @@ public class CompletableFutureTest {
 
         List<Shop> shops = completableFutures.stream().map(future -> future.join()).collect(Collectors.toList());
         shops.stream().forEach(System.out::println);
-        System.out.println("CompletableFuture花费时间：" + (System.currentTimeMillis()-start) + "ms");
+        System.out.println("CompletableFuture花费时间：" + (System.currentTimeMillis() - start) + "ms");
 
     }
 
@@ -151,7 +151,7 @@ public class CompletableFutureTest {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> {
             System.out.println(Thread.currentThread().getName() + " invoke");
-            int a = 3/0;
+            int a = 3 / 0;
             return "success";
         });
         System.out.println(future.get());
@@ -177,6 +177,7 @@ public class CompletableFutureTest {
 
     /**
      * thenCombine方法用来合并两个future结果
+     *
      * @throws InterruptedException
      */
     @Test
@@ -216,6 +217,7 @@ public class CompletableFutureTest {
 
     /**
      * thenAcceptBoth方法用于等待两个future完成后执行下一步操作
+     *
      * @throws InterruptedException
      */
     @Test
@@ -230,7 +232,7 @@ public class CompletableFutureTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return 3/0;
+            return 3 / 0;
         }), (result1, result2) -> {
             System.out.println("result1 = " + result1);
             System.out.println("result2 = " + result2);
@@ -296,7 +298,7 @@ public class CompletableFutureTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            int a = 3/0;
+            int a = 3 / 0;
             System.out.println("第三个执行完成");
             return "third";
         })).thenAccept(result -> {
@@ -317,7 +319,7 @@ public class CompletableFutureTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            int a = 3/0;
+            int a = 3 / 0;
             System.out.println("第一个执行完成");
             return "first";
         }), CompletableFuture.supplyAsync(() -> {
@@ -361,7 +363,7 @@ public class CompletableFutureTest {
                 e.printStackTrace();
             }
             System.out.println(Thread.currentThread().getName() + ":任务2执行完毕");
-            return 3/0;
+            return 3 / 0;
         };
         Supplier<String> task3 = () -> {
             System.out.println(Thread.currentThread().getName() + ":任务3已执行");
@@ -375,64 +377,85 @@ public class CompletableFutureTest {
         System.out.println(Thread.currentThread().getName() + ":调用花费时间：" + (System.currentTimeMillis() - startTime));
         results.forEach(System.out::println);
     }
-}
 
-class Shop {
-    /**
-     * 商品名称
-     */
-    private String name;
-    /**
-     * 商品价格
-     */
-    private Double price;
-    /**
-     * 供应商
-     */
-    private String vendor;
+    static class HttpClient {
+        private Random random = new Random();
 
-    public Shop(String name, String vendor) {
-        this.name = name;
-        this.vendor = vendor;
+        public Shop getPrice(Shop shop) {
+            shop.setPrice(calculatePrice());
+            return shop;
+        }
+
+        private Double calculatePrice() {
+            delay();
+            return Double.valueOf(random.nextInt(200));
+        }
+
+        /**
+         * 模拟接口调用耗费时间
+         *
+         * @throws InterruptedException
+         */
+        private void delay() {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
-    public String getVendor() { return vendor; }
-    public void setVendor(String vendor) { this.vendor = vendor; }
-    @Override
-    public String toString() {
-        return "Shop{" +
-                "name='" + name + '\'' +
-                ", price=" + price +
-                ", vendor='" + vendor + '\'' +
-                '}';
-    }
-}
+    static class Shop {
+        /**
+         * 商品名称
+         */
+        private String name;
+        /**
+         * 商品价格
+         */
+        private Double price;
+        /**
+         * 供应商
+         */
+        private String vendor;
 
-class HttpClient {
-    private Random random = new Random();
-    public Shop getPrice(Shop shop) {
-        shop.setPrice(calculatePrice());
-        return shop;
-    }
+        public Shop(String name, String vendor) {
+            this.name = name;
+            this.vendor = vendor;
+        }
 
-    private Double calculatePrice() {
-        delay();
-        return Double.valueOf(random.nextInt(200));
-    }
+        public String getName() {
+            return name;
+        }
 
-    /**
-     * 模拟接口调用耗费时间
-     * @throws InterruptedException
-     */
-    private void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Double getPrice() {
+            return price;
+        }
+
+        public void setPrice(Double price) {
+            this.price = price;
+        }
+
+        public String getVendor() {
+            return vendor;
+        }
+
+        public void setVendor(String vendor) {
+            this.vendor = vendor;
+        }
+
+        @Override
+        public String toString() {
+            return "Shop{" +
+                    "name='" + name + '\'' +
+                    ", price=" + price +
+                    ", vendor='" + vendor + '\'' +
+                    '}';
         }
     }
 

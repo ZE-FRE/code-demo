@@ -20,7 +20,6 @@ public class ThreadTest {
      *
      * @author pujian
      * @date 2021/6/24 17:36
-     * @return
      */
     @Test
     public void testParkRespondInterrupt() throws InterruptedException {
