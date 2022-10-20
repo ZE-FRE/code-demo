@@ -1,4 +1,4 @@
-package cn.zefre;
+package cn.zefre.concurrent;
 
 import org.junit.jupiter.api.Test;
 

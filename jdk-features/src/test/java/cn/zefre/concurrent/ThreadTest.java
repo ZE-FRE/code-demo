@@ -14,7 +14,7 @@ import java.util.concurrent.locks.LockSupport;
 public class ThreadTest {
 
     /**
-     * 测试park方法是否会相应中断
+     * 测试park方法是否会响应中断
      * 测试结果：
      * park会响应中断信号
      *
