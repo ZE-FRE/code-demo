@@ -9,7 +9,6 @@ import cn.zefre.common.jackson.serializer.BaseEnumCodeSerializer;
 import cn.zefre.common.jackson.serializer.BaseEnumDescriptionSerializer;
 import cn.zefre.common.jackson.serializer.BaseEnumObjectSerializer;
 import cn.zefre.common.jackson.serializer.BaseEnumSerializers;
-import cn.zefre.common.jackson.util.ObjectMapperUtil;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,25 +29,24 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EnumTest {
 
     @Test
-    public void testSerialize() throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
-        // 注册序列化器，此种方式会在运行时为当前枚举类(IEnum的子类)生成一个序列化器
-        SimpleModule codeModule = new SimpleModule();
-        codeModule.setSerializers(new BaseEnumSerializers());
-        objectMapper.registerModule(codeModule);
+    public void testDefaultSerialization() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 注册序列化器，此种方式会在运行时为当前枚举类(BaseEnum的子类)生成一个序列化器
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.setSerializers(new BaseEnumSerializers());
+        objectMapper.registerModule(simpleModule);
+        assertEquals(ByteEnum.BYTE_HELLO.getDescription(), objectMapper.valueToTree(ByteEnum.BYTE_HELLO).asText());
 
-        assertEquals("1", objectMapper.writeValueAsString(ByteEnum.BYTE_HELLO));
-
-        // 已经缓存了ByteEnum.class的序列化器了，这里再注册新的序列化器进去已经没用了
+        // 已经缓存了ByteEnum的序列化器了，这里再注册新的序列化器进去已经没用了
         SimpleModule descriptionModule = new SimpleModule();
         descriptionModule.addSerializer(ByteEnum.class, new BaseEnumDescriptionSerializer());
         objectMapper.registerModule(descriptionModule);
-        assertEquals("1", objectMapper.writeValueAsString(ByteEnum.BYTE_HELLO));
+        assertEquals(ByteEnum.BYTE_HELLO.getDescription(), objectMapper.valueToTree(ByteEnum.BYTE_HELLO).asText());
     }
 
     @Test
     public void testSerializeAllField() throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         // 注册序列化器，此种方式只会注册一个序列化器
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(BaseEnum.class, new BaseEnumObjectSerializer());
@@ -63,7 +61,7 @@ public class EnumTest {
 
     @Test
     public void testDeserialize() {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         // 注册反序列器
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.setDeserializers(new BaseEnumDeserializers());
@@ -93,6 +91,7 @@ public class EnumTest {
     public void testSerializeInObj() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule simpleModule = new SimpleModule();
+        // 注册序列化器
         simpleModule.addSerializer(BaseEnum.class, new BaseEnumDescriptionSerializer());
         objectMapper.registerModule(simpleModule);
 
@@ -105,8 +104,8 @@ public class EnumTest {
     }
     @Test
     public void testDeserializeInObj() throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
-        // 注册IEnum默认反序列化器
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 注册反序列化器
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.setDeserializers(new BaseEnumDeserializers());
         objectMapper.registerModule(simpleModule);
@@ -118,26 +117,33 @@ public class EnumTest {
 
     @Data
     @AllArgsConstructor
-    static class EnumUsingAnn {
-        @JsonSerialize(using = BaseEnumDescriptionSerializer.class)
+    static class EnumAnnotatedWithJsonSerialize {
+        @JsonSerialize(using = BaseEnumCodeSerializer.class)
         private ByteEnum byteEnum;
 
         @JsonSerialize(using = BaseEnumObjectSerializer.class)
         private ByteEnum byteEnum2;
     }
 
+    /**
+     * 测试@JsonSerialize注解标注的序列化器优先级更高
+     *
+     * @author pujian
+     * @date 2023/1/14 21:58
+     */
     @Test
-    public void testSerializeAnn() throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
+    public void testSerializationOverriding() {
+        ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(BaseEnum.class, new BaseEnumCodeSerializer());
+        // 注册序列化器
+        simpleModule.addSerializer(BaseEnum.class, new BaseEnumDescriptionSerializer());
         objectMapper.registerModule(simpleModule);
 
-        JsonNode jsonNode = objectMapper.valueToTree(new EnumUsingAnn(ByteEnum.BYTE_HELLO, ByteEnum.BYTE_HELLO));
-        assertEquals(ByteEnum.BYTE_HELLO.getDescription(), jsonNode.get("byteEnum").textValue());
+        JsonNode jsonNode = objectMapper.valueToTree(new EnumAnnotatedWithJsonSerialize(ByteEnum.BYTE_HELLO, ByteEnum.BYTE_HELLO));
+        assertEquals(ByteEnum.BYTE_HELLO.getCode(), (byte) jsonNode.get("byteEnum").intValue());
         assertTrue(jsonNode.get("byteEnum2").isObject());
         // System.out.println(objectMapper.writeValueAsString(new EnumUsingAnn(ByteEnum.BYTE_HELLO, ByteEnum.BYTE_HELLO)));
-        assertEquals("1", objectMapper.writeValueAsString(ByteEnum.BYTE_HELLO));
+        assertEquals(ByteEnum.BYTE_HELLO.getDescription(), objectMapper.valueToTree(ByteEnum.BYTE_HELLO).asText());
     }
 
 
@@ -148,7 +154,7 @@ public class EnumTest {
     }
     @Test
     public void testEnum() throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperUtil.getObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         assertEquals(PassengerType.ADULT, objectMapper.readValue("\"ADULT\"", PassengerType.class));
         assertEquals(PassengerType.ADULT, objectMapper.convertValue("ADULT", PassengerType.class));
         assertEquals(PassengerType.ADULT.name(), objectMapper.valueToTree(PassengerType.ADULT).asText());

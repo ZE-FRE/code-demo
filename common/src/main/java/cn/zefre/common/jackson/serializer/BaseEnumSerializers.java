@@ -17,7 +17,8 @@ public class BaseEnumSerializers extends SimpleSerializers {
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type, BeanDescription beanDesc) {
         JsonSerializer<?> serializer = super.findSerializer(config, type, beanDesc);
         if (serializer == null && BaseEnum.class.isAssignableFrom(type.getRawClass())) {
-            serializer = new BaseEnumCodeSerializer();
+            // 序列化BaseEnum时，默认序列化description
+            serializer = new BaseEnumDescriptionSerializer();
             addSerializer(serializer);
         }
         return serializer;

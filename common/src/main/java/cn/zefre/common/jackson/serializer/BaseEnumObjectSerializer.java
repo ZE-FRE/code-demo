@@ -2,8 +2,8 @@ package cn.zefre.common.jackson.serializer;
 
 import cn.zefre.common.jackson.enums.BaseEnum;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 import java.io.IOException;
 
@@ -13,7 +13,11 @@ import java.io.IOException;
  * @author pujian
  * @date 2023/1/14 16:20
  */
-public class BaseEnumObjectSerializer extends JsonSerializer<BaseEnum> {
+public class BaseEnumObjectSerializer extends StdScalarSerializer<BaseEnum> {
+
+    public BaseEnumObjectSerializer() {
+        super(BaseEnum.class);
+    }
 
     @Override
     public void serialize(BaseEnum value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
