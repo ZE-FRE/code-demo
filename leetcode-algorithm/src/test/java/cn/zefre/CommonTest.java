@@ -2,6 +2,9 @@ package cn.zefre;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author pujian
  * @date 2020/11/14 10:56
@@ -190,4 +193,47 @@ public class CommonTest {
         }
         System.out.println(minCapacity);
     }
+
+    @Test
+    public void testReverse() {
+        String string = "first,second,third,fourth";
+        System.out.println(reverseDelimitedString(string, ","));
+    }
+
+    /**
+     @param needReverseValue 需要反序的字符串
+     @param delimiter 分割符号
+     */
+    public static String reverseDelimitedString(String needReverseValue, String delimiter){
+        if (needReverseValue == null || needReverseValue.isEmpty()
+                || delimiter == null || delimiter.isEmpty()) {
+            return needReverseValue;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        String[] values = needReverseValue.split(delimiter);
+        for (int i = values.length - 1; i > 0; i--) {
+            stringBuilder.append(values[i]).append(delimiter);
+        }
+        stringBuilder.append(values[0]);
+        return stringBuilder.toString();
+    }
+
+    @Test
+    public void testExists() {
+        int[] arr = {1,2,3,1,3};
+        System.out.println(existDuplicatedNum(arr));
+    }
+
+    public static boolean existDuplicatedNum(int[] arr) {
+        if (arr == null) {
+            return false;
+        }
+        // key为数组中的数字，value为出现的次数
+        Map<Integer, Integer> countingMap = new HashMap<>(arr.length);
+        for (int num : arr) {
+            countingMap.merge(num, 1, Integer::sum);
+        }
+        return countingMap.values().stream().anyMatch(times -> times > 1);
+    }
+
 }

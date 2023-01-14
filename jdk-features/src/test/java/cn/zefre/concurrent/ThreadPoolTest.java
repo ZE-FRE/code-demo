@@ -1,6 +1,7 @@
 package cn.zefre.concurrent;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,4 +66,40 @@ public class ThreadPoolTest {
         TimeUnit.SECONDS.sleep(4);
     }
 
+    @Test
+    public void testException() {
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(4);
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 4,
+                500L, TimeUnit.MICROSECONDS, queue, new MyThreadFactory());
+
+        Assertions.assertEquals(0, threadPool.getActiveCount());
+
+        threadPool.execute(() -> {
+            System.out.println("开始执行任务");
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            int a = 1/0;
+        });
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertEquals(1, threadPool.getActiveCount());
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(threadPool.getActiveCount());
+
+    }
 }
+
