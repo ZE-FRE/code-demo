@@ -18,7 +18,9 @@ public class ThreadPoolTest {
         @Override
         public Thread newThread(Runnable r) {
             String namePrefix = "demo-pool-thread-";
-            return new Thread(r, namePrefix + atomic.getAndIncrement());
+            String threadName = namePrefix + atomic.getAndIncrement();
+            System.out.println("新建线程" + threadName);
+            return new Thread(r, threadName);
         }
     }
 
@@ -35,12 +37,12 @@ public class ThreadPoolTest {
         }
     }
 
+    private LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(4);
+    private ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 4,
+            500L, TimeUnit.MICROSECONDS, queue, new MyThreadFactory());
+
     @Test
     public void test() throws InterruptedException {
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(4);
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 4,
-                500L, TimeUnit.MICROSECONDS, queue, new MyThreadFactory());
-
         for (int i = 0; i < 15; i++) {
             System.out.println("  queue size = " + queue.size() + "  ");
             try {
@@ -68,10 +70,6 @@ public class ThreadPoolTest {
 
     @Test
     public void testException() {
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(4);
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 4,
-                500L, TimeUnit.MICROSECONDS, queue, new MyThreadFactory());
-
         Assertions.assertEquals(0, threadPool.getActiveCount());
 
         threadPool.execute(() -> {
@@ -81,7 +79,7 @@ public class ThreadPoolTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            int a = 1/0;
+            int a = 1 / 0;
         });
 
         try {
@@ -101,5 +99,19 @@ public class ThreadPoolTest {
         System.out.println(threadPool.getActiveCount());
 
     }
+
+    /**
+     * 测试任务失败时，运行当前任务的线程会退出，并新建一个线程
+     *
+     * @author pujian
+     * @date 2023/1/16 17:55
+     */
+    @Test
+    public void testTaskFailed() {
+        threadPool.execute(() -> {
+            int a = 1 / 0;
+        });
+    }
+
 }
 
