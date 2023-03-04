@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
  * 又叫AVL树、Self-Balancing Binary Search Tree、Height-Balanced Binary Search Tree
  *
  * AVL树与二叉排序树相比，增加了一个平衡因子，表示左右子树高度之差
- * -1：左子树比右子树高
+ * 1：左子树比右子树高
  * 0：左右子树等高
- * 1：右子树比左子树高
+ * -1：右子树比左子树高
  *
  * @author pujian
  * @date 2021/8/13 14:36
@@ -68,14 +68,14 @@ public class AVLTree<E extends Comparable<E>> {
     }
 
     /**
-     * 计算结点的平衡因子
+     * 计算结点的左右子树高度差
      *
      * @param node 结点
      * @author pujian
      * @date 2021/8/25 16:42
-     * @return 结点平衡因子
+     * @return 结点的左右子树高度差
      */
-    private int calculateBalanceFactor(AVLNode<?> node) {
+    private int calculateGapOfLeftRight(AVLNode<?> node) {
         if (null == node) return 0;
         int leftHeight = null == node.left ? 0 : node.left.height;
         int rightHeight = null == node.right ? 0 : node.right.height;
@@ -151,7 +151,7 @@ public class AVLTree<E extends Comparable<E>> {
         if (added) {
             node.height = calculateHeight(node);
             // 若插入后导致AVL树失衡，平衡AVL树
-            if (Math.abs(calculateBalanceFactor(node)) > 1)
+            if (Math.abs(calculateGapOfLeftRight(node)) > 1)
                 balance(node);
         }
         return added;
@@ -195,7 +195,7 @@ public class AVLTree<E extends Comparable<E>> {
         if (deleted) {
             deletedNode.height = calculateHeight(deletedNode);
             // 若删除节点后导致AVL树失衡，平衡AVL树
-            if (Math.abs(calculateBalanceFactor(deletedNode)) > 1)
+            if (Math.abs(calculateGapOfLeftRight(deletedNode)) > 1)
                 balance(deletedNode);
         }
         return deleted;
@@ -252,7 +252,7 @@ public class AVLTree<E extends Comparable<E>> {
      * @date 2021/8/25 17:29
      */
     private void balance(AVLNode<E> node) {
-        int nodeBf = calculateBalanceFactor(node);
+        int nodeBf = calculateGapOfLeftRight(node);
         if (nodeBf > 1) { // 左子树高
             /*
              * 取等于0是因为在删除时存在如下情况：
@@ -262,19 +262,19 @@ public class AVLTree<E extends Comparable<E>> {
              *      / \                     / \                           /
              *     4   8                   4   8                         8
              */
-            if (calculateBalanceFactor(node.left) >= 0) {
+            if (calculateGapOfLeftRight(node.left) >= 0) {
                 // LL型，右旋
                 rightRotate(node);
-            } else if (calculateBalanceFactor(node.left) < 0) {
+            } else if (calculateGapOfLeftRight(node.left) < 0) {
                 // LR型，先左旋，再右旋
                 leftRotate(node.left);
                 rightRotate(node);
             }
         } else if (nodeBf < -1) { // 右子树高
-            if (calculateBalanceFactor(node.right) <= 0) {
+            if (calculateGapOfLeftRight(node.right) <= 0) {
                 // RR型，左旋
                 leftRotate(node);
-            } else if (calculateBalanceFactor(node.right) > 0) {
+            } else if (calculateGapOfLeftRight(node.right) > 0) {
                 // RL型，先右旋，再左旋
                 rightRotate(node.right);
                 leftRotate(node);
