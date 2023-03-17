@@ -33,7 +33,7 @@ public class CountDownLatchTest {
             }
         });
         String mainThreadName = Thread.currentThread().getName();
-        System.out.println(mainThreadName + " is waiting for the signal that all worker has finished its work");
+        System.out.println(mainThreadName + " is waiting for the signal that all workers has finished its work");
         latch.await();
         System.out.println(mainThreadName + " has received the signal");
     }
