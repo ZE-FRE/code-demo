@@ -1,6 +1,6 @@
 package cn.zefre.queue;
 
-import cn.zefre.queque.impl.LinkedQueue;
+import cn.zefre.queue.impl.LinkedQueue;
 import org.junit.Test;
 
 /**

@@ -185,6 +185,7 @@ public class GenericTest {
         // T t = new T(); // 报错，泛型类型不能直接实例化，只能通过反射实例化
         T t = clazz.newInstance(); // OK
         // T[] tArr = new T[size]; // 报错，不能这样实例化泛型数组
+        // noinspection unchecked
         return (T[]) Array.newInstance(clazz, size);
     }
 

@@ -1,4 +1,4 @@
-package cn.zefre.queque;
+package cn.zefre.queue;
 
 /**
  * 队列

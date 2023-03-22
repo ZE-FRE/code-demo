@@ -1,6 +1,6 @@
-package cn.zefre.queque.impl;
+package cn.zefre.queue.impl;
 
-import cn.zefre.queque.Queue;
+import cn.zefre.queue.Queue;
 
 /**
  * 链队列
